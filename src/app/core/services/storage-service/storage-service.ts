@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import CryptoJS from 'crypto-js';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
-  private secretKey = 'EMPLOYEE-MANAGEMENT-SECRET';
+  private readonly secretKey = environment.storageSecret;
 
   private encrypt(value: string): string {
     return CryptoJS.AES.encrypt(value, this.secretKey).toString();
