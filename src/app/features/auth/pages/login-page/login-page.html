@@ -1,1 +1,51 @@
-<p>login-page works!</p>
+<div
+  class="w-full h-auto min-h-screen px-[25px] py-[100px] flex flex-col items-center justify-start bg-soft-gray gap-10"
+>
+  <div class="w-auto h-auto">
+    <img
+      src="assets/images/webp/logo.webp"
+      alt="Logo employee management backoffice"
+      class="w-full h-auto max-w-[350px]"
+    />
+  </div>
+
+  <div
+    class="w-full max-w-md h-auto flex flex-col items-start justify-start bg-white rounded-2xl shadow-md p-10 border border-gray-100 gap-8"
+  >
+    <div class="w-full h-auto">
+      <p class="text-center text-2xl font-semibold text-primary-dark">Welcome Back</p>
+    </div>
+
+    <form
+      class="w-full h-auto flex flex-col items-start justify-start gap-4"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+    >
+      <div class="w-full h-auto">
+        <app-input
+          id="username"
+          label="Username"
+          placeholder="Your username..."
+          formControlName="username"
+          [error]="usernameError"
+        ></app-input>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-password
+          id="password"
+          label="Password"
+          placeholder="Your password..."
+          formControlName="password"
+          [error]="passwordError"
+        ></app-input-password>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-button type="submit" [disabled]="form.invalid || loading()" [loading]="loading()">
+          Login
+        </app-button>
+      </div>
+    </form>
+  </div>
+</div>

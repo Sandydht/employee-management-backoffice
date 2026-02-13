@@ -1,1 +1,50 @@
 @import 'tailwindcss';
+
+@theme {
+  /* --- PRIMARY (Navy - Otoritas & Profesional) --- */
+  --color-primary: #1A3C5E;
+  --color-primary-light: #2A5A8A;
+  --color-primary-dark: #10263D;
+
+  /* --- SECONDARY (Gold - Mewah & Aksen) --- */
+  --color-secondary: #C5A059;
+  --color-secondary-light: #E2C28E;
+  --color-secondary-dark: #A6823F;
+
+  /* --- TERTIARY (Slate Blue - Keseimbangan) --- */
+  --color-tertiary: #64748B;
+  --color-tertiary-light: #94A3B8;
+  --color-tertiary-dark: #475569;
+
+  /* --- QUATERNARY (Cool Gray - Elemen Netral) --- */
+  --color-quaternary: #94A3B8;
+  --color-quaternary-light: #F1F5F9;
+  --color-quaternary-dark: #1E293B;
+
+  /* --- STATE COLORS (Status Fungsional) --- */
+
+  /* Success - Positif & Aman */
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-success-dark: #065F46;
+
+  /* Danger - Error & Hapus */
+  --color-danger: #EF4444;
+  --color-danger-light: #FEE2E2;
+  --color-danger-dark: #991B1B;
+
+  /* Warning - Peringatan & Perhatian */
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-warning-dark: #92400E;
+
+  /* Info - Informasi & Pengumuman */
+  --color-info: #3B82F6;
+  --color-info-light: #DBEAFE;
+  --color-info-dark: #1E40AF;
+
+  /* Disabled - Tidak Aktif */
+  --color-disabled: #94A3B8;
+  --color-disabled-text: #64748B;
+  --color-disabled-bg: #E2E8F0;
+}
