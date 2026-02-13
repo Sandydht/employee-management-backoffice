@@ -28,7 +28,7 @@
               }
             ],
             "styles": [
-              "src/shared/styles/styles.css"
+              "src/styles.css"
             ]
           },
           "configurations": {
