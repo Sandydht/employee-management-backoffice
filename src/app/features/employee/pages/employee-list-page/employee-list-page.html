@@ -1,1 +1,35 @@
-<p>employee-list-page works!</p>
+<div class="w-full h-auto flex flex-col items-start justify-start gap-4">
+  <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+    <p class="text-left text-[22px] leading-7 font-bold">Employee List</p>
+    <p class="text-left text-[16px] leading-6">
+      View, search, and manage employee records with sorting and pagination support.
+    </p>
+  </div>
+
+  <div class="w-full h-auto">
+    <div class="w-full h-auto max-w-[20%]">
+      <app-button> Add Employee </app-button>
+    </div>
+  </div>
+
+  <div
+    class="w-full h-auto bg-white rounded-lg flex flex-col items-start justify-start border border-gray-100 shadow-md"
+  >
+    <div class="w-full h-auto p-4 max-w-[500px]">
+      <app-input-search placeholder="Search by username, name, or email..."></app-input-search>
+    </div>
+
+    <div class="w-full h-auto flex flex-col items-start justify-start">
+      <div class="w-full h-auto p-4 border-b-2 border-gray-100">
+        <p>Table</p>
+      </div>
+
+      <div class="w-full h-auto p-4 flex items-center justify-end">
+        <app-pagination
+          [paginationMeta]="paginationMeta()"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
