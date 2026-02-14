@@ -1,14 +1,31 @@
 import { Component, computed, inject } from '@angular/core';
 import { SideBarService } from '../../core/services/side-bar-service/side-bar-service';
+import { RouterModule } from '@angular/router';
+
+type SidebarLink = {
+  label: string;
+  path: string;
+};
 
 @Component({
   selector: 'app-side-bar',
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './side-bar.html',
   styleUrl: './side-bar.css',
 })
 export class SideBarComponent {
   sideBarService = inject(SideBarService);
+
+  links: SidebarLink[] = [
+    {
+      label: 'Dashboard',
+      path: '/dashboard',
+    },
+    {
+      label: 'Employees',
+      path: '/employees',
+    },
+  ];
 
   close(): void {
     this.sideBarService.close();

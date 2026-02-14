@@ -60,7 +60,7 @@ export class LoginPage {
     this.authService.login(payload).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/employees']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.loading.set(false);

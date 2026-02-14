@@ -18,9 +18,17 @@
     </div>
 
     <nav
-      class="w-full h-auto min-h-[calc(100vh-85.56px)] max-h-[calc(100vh-85.56px)] overflow-y-auto flex flex-col items-start justify-start py-2"
+      class="w-full h-auto min-h-[calc(100vh-85.56px)] max-h-[calc(100vh-85.56px)] overflow-y-auto flex flex-col items-start justify-start py-2 px-4 gap-2"
     >
-      <button type="button" class="w-full h-auto px-4 py-2 rounded-lg text-left">Employees</button>
+      @for (link of links; track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="bg-primary text-white pointer-events-none"
+          class="w-full h-auto px-4 py-2 rounded-lg hover:bg-gray-100 hover:text-primary"
+        >
+          {{ link.label }}
+        </a>
+      }
     </nav>
   </aside>
 </ng-container>
