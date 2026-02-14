@@ -1,0 +1,26 @@
+<ng-container>
+  @if (sideBarService.isOpen()) {
+    <div
+      tabindex="0"
+      class="w-full h-full fixed left-0 top-0 right-0 bottom-0 z-30 bg-black/50 md:hidden"
+      (click)="close()"
+      (keydown.esc)="close()"
+    ></div>
+  }
+
+  <aside [class]="sideBarClasses()">
+    <div class="w-full h-auto px-4 py-2 flex items-center justify-center">
+      <img
+        src="assets/images/webp/logo.webp"
+        alt="Logo"
+        class="w-full h-auto object-contain object-center"
+      />
+    </div>
+
+    <nav
+      class="w-full h-auto min-h-[calc(100vh-85.56px)] max-h-[calc(100vh-85.56px)] overflow-y-auto flex flex-col items-start justify-start py-2"
+    >
+      <button type="button" class="w-full h-auto px-4 py-2 rounded-lg text-left">Employees</button>
+    </nav>
+  </aside>
+</ng-container>
