@@ -22,10 +22,18 @@ export class EmployeeListPage {
     hasPrevPage: false,
   });
 
-  onPageChange(page: number) {
+  onPageChange(page: number): void {
     this.paginationMeta.update((meta) => ({
       ...meta,
       page,
+    }));
+  }
+
+  onPageSizeChange(size: number) {
+    this.paginationMeta.update((meta) => ({
+      ...meta,
+      size,
+      page: 1,
     }));
   }
 }

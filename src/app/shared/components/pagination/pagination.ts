@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, OnChanges, output, signal } from '@angular/core';
+import { ClickOutsideDirective } from '../../directives/click-outside/click-outside';
 
 export type PaginationMeta = {
   page: number;
@@ -14,7 +15,7 @@ export type PageItem = number | '...';
 
 @Component({
   selector: 'app-pagination',
-  imports: [CommonModule],
+  imports: [CommonModule, ClickOutsideDirective],
   templateUrl: './pagination.html',
   styleUrl: './pagination.css',
 })
@@ -23,8 +24,10 @@ export class PaginationComponent implements OnChanges {
   pageSizeOptions = input<number[]>([5, 10, 25, 50]);
 
   pageChange = output<number>();
+  pageSizeChange = output<number>();
 
   pages = signal<PageItem[]>([]);
+  isOpenPageSizeDropdown = signal<boolean>(false);
 
   ngOnChanges(): void {
     this.pages.set(this.generatePages());
@@ -85,5 +88,19 @@ export class PaginationComponent implements OnChanges {
     if (this.paginationMeta()?.hasPrevPage) {
       this.goToPage(this.paginationMeta()!.page - 1);
     }
+  }
+
+  togglePageSizeDropdown(): void {
+    this.isOpenPageSizeDropdown.update((value) => !value);
+  }
+
+  closeOpenPageSizeDropdown(): void {
+    this.isOpenPageSizeDropdown.set(false);
+  }
+
+  selectPageSize(size: number): void {
+    this.isOpenPageSizeDropdown.set(false);
+    this.pageSizeChange.emit(size);
+    this.pageChange.emit(1);
   }
 }
