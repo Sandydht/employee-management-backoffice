@@ -1,17 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, OnChanges, output, signal } from '@angular/core';
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside';
-
-export type PaginationMeta = {
-  page: number;
-  size: number;
-  totalItems: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-};
-
-export type PageItem = number | '...';
+import { PaginationMeta } from '../../models/pagination-meta.model';
+import { PageItem } from '../../models/page-item.model';
 
 @Component({
   selector: 'app-pagination',
@@ -34,33 +25,35 @@ export class PaginationComponent implements OnChanges {
   }
 
   generatePages(): PageItem[] {
-    const totalPages = this.paginationMeta()?.totalPages || 0;
-    const current = this.paginationMeta()?.page || 1;
+    const meta = this.paginationMeta();
+    if (!meta) return [];
 
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const total = meta.totalPages;
+    const current = meta.page;
+
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
     }
 
     const result: PageItem[] = [];
 
     result.push(1);
 
-    if (current > 4) {
-      result.push('...');
-    }
+    // Left dots
+    if (current > 3) result.push('...');
 
-    const start = Math.max(2, current - 1);
-    const end = Math.min(totalPages - 1, current + 1);
+    // Middle range hanya 2 angka
+    const start = Math.max(2, current);
+    const end = Math.min(total - 1, current + 1);
 
     for (let i = start; i <= end; i++) {
       result.push(i);
     }
 
-    if (current < totalPages - 3) {
-      result.push('...');
-    }
+    // Right dots
+    if (current < total - 2) result.push('...');
 
-    result.push(totalPages);
+    result.push(total);
 
     return result;
   }

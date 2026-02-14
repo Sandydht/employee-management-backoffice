@@ -1,0 +1,116 @@
+<table class="w-full h-auto relative">
+  <thead class="w-auto h-auto bg-gray-100 sticky top-0 z-10 border-b border-gray-100 shadow-md">
+    <tr>
+      @for (col of columns(); track col.key) {
+        <th
+          class="w-auto h-auto px-4 py-3 text-left text-[14px] leading-[20px] font-semibold whitespace-nowrap"
+        >
+          {{ col.header }}
+        </th>
+      }
+    </tr>
+  </thead>
+
+  @if (loading()) {
+    <tbody>
+      <tr>
+        <td
+          [attr.colspan]="colSpan"
+          class="w-auto h-auto px-4 py-6 text-center text-[14px] leading-[20px] font-semibold whitespace-nowrap"
+        >
+          Loading data...
+        </td>
+      </tr>
+    </tbody>
+  } @else if (!loading() && datas().length === 0) {
+    <tbody>
+      <tr>
+        <td
+          [attr.colspan]="colSpan"
+          class="w-auto h-auto px-4 py-6 text-center text-[14px] leading-[20px] font-semibold whitespace-nowrap"
+        >
+          {{ emptyText() }}
+        </td>
+      </tr>
+    </tbody>
+  } @else {
+    <tbody>
+      @for (row of datas(); track row[rowKey()!]) {
+        <tr>
+          @for (col of columns(); track col.key) {
+            <td
+              class="w-auto h-auto px-4 py-3 text-left text-[14px] leading-[20px] border-b border-gray-300 whitespace-nowrap"
+            >
+              {{ getCellValue(row, col) }}
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  }
+</table>
+
+<!-- <table class="min-w-full text-sm relative">
+  <thead class="bg-gray-100 sticky top-0 z-10 border-b border-gray-200 shadow-md">
+    <tr>
+      @for (col of columns(); track col.key) {
+      <th (click)="handleSort(col)" class="px-4 py-3 text-left text-[14px] font-semibold"
+        [class.cursor-pointer]="col.sortable" [class.select-none]="col.sortable">
+        <div class="flex items-center gap-1">
+          {{ col.header }}
+
+          @if (col.sortable) {
+          <span class="text-xs transition-opacity" [class.opacity-100]="isActiveSort(col)"
+            [class.opacity-40]="!isActiveSort(col)">
+            @if (isActiveSort(col)) {
+            {{ sort().direction === "asc" ? "▲" : "▼" }}
+            } @else {
+            ▲▼
+            }
+          </span>
+          }
+        </div>
+      </th>
+      }
+    </tr>
+  </thead>
+
+  <tbody>
+    @if (loading()) {
+    <tr>
+      <td [attr.colspan]="colSpan" class="px-4 py-6 text-center text-gray-500">
+        Loading data...
+      </td>
+    </tr>
+    }
+
+    @else if (!loading() && data().length === 0) {
+    <tr>
+      <td [attr.colspan]="colSpan" class="px-4 py-6 text-center text-gray-500">
+        {{ emptyText() }}
+      </td>
+    </tr>
+    }
+
+    @else {
+    @for (row of data(); track row[rowKey()!]) {
+    <tr>
+      @for (col of columns(); track col.key) {
+      <td class="px-4 py-3 border-b border-gray-300">
+        @if (col.template) {
+        <ng-container *ngTemplateOutlet="
+                    col.template;
+                    context: { $implicit: row }
+                  "></ng-container>
+        }
+
+        @else {
+        {{ getCellValue(row, col) }}
+        }
+      </td>
+      }
+    </tr>
+    }
+    }
+  </tbody>
+</table> -->

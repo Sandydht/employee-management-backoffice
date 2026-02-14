@@ -18,7 +18,7 @@ export class ButtonComponent {
 
   classes = computed(() => {
     const base =
-      'w-full h-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition text-center text-[14px] leading-5 font-bold';
+      'w-full h-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition text-center text-[14px] leading-5 font-bold line-clamp-1 text-nowrap';
 
     const variants: Record<ButtonVariant, string> = {
       primary: `

@@ -1,10 +1,66 @@
-<div class="w-full h-auto flex flex-col-reverse lg:flex-row items-center justify-start gap-4">
+<!-- MOBILE -->
+<div class="w-full h-auto flex items-center justify-center gap-4 md:hidden">
+  <div class="w-auto h-auto flex items-center justify-start gap-2">
+    <button
+      type="button"
+      [disabled]="!paginationMeta()?.hasPrevPage"
+      class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] flex items-center justify-center rounded-lg"
+      [ngClass]="{
+        'cursor-not-allowed': !paginationMeta()?.hasPrevPage,
+        'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasPrevPage,
+      }"
+      (click)="prevPage()"
+    >
+      <img
+        [src]="
+          !paginationMeta()?.hasPrevPage
+            ? 'assets/images/svg/chevron_left_24px_quaternary.svg'
+            : 'assets/images/svg/chevron_left_24px_primary.svg'
+        "
+        alt="Previous page icon"
+        class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+      />
+    </button>
+  </div>
+
+  <div class="w-auto h-auto">
+    <p class="text-center text-[14px] leading-5 line-clamp-1">
+      {{ paginationMeta()?.page }} of {{ paginationMeta()?.totalPages }}
+    </p>
+  </div>
+
+  <div class="w-auto h-auto flex items-center justify-start gap-2">
+    <button
+      type="button"
+      [disabled]="!paginationMeta()?.hasNextPage"
+      class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] flex items-center justify-center rounded-lg"
+      [ngClass]="{
+        'cursor-not-allowed': !paginationMeta()?.hasNextPage,
+        'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasNextPage,
+      }"
+      (click)="nextPage()"
+    >
+      <img
+        [src]="
+          !paginationMeta()?.hasNextPage
+            ? 'assets/images/svg/chevron_right_24px_quaternary.svg'
+            : 'assets/images/svg/chevron_right_24px_primary.svg'
+        "
+        alt="Next page icon"
+        class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+      />
+    </button>
+  </div>
+</div>
+
+<!-- DESKTOP -->
+<div class="w-full h-auto hidden md:flex items-center justify-start gap-4">
   <div class="w-auto h-auto flex items-center justify-start gap-2">
     <p class="text-[14px] leading-5 text-left">Page</p>
     <div class="w-auto h-auto relative">
       <button
         type="button"
-        class="w-auto h-auto pl-4 pr-2 min-h-[35px] max-h-[35px] border rounded-lg flex items-center justify-center text-[14px] leading-5 text-center gap-2 cursor-pointer outline-none transition border-[var(--color-quaternary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)]"
+        class="w-auto h-auto pl-3 pr-1 min-h-[35px] max-h-[35px] border rounded-lg flex items-center justify-center text-[14px] leading-5 text-center gap-2 cursor-pointer outline-none transition border-[var(--color-quaternary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)]"
         (click)="togglePageSizeDropdown()"
       >
         {{ paginationMeta()?.size }}
@@ -95,7 +151,7 @@
         @if (page !== '...') {
           <button
             type="button"
-            class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] cursor-pointer text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
+            class="w-full h-full px-3 min-h-[35px] max-h-[35px] cursor-pointer text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
             [ngClass]="{
               'bg-primary text-white': page === paginationMeta()?.page,
               'hover:bg-gray-100 text-primary': page !== paginationMeta()?.page,
@@ -106,7 +162,7 @@
           </button>
         } @else {
           <span
-            class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] text-primary text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
+            class="w-full h-full px-3 min-h-[35px] max-h-[35px] text-primary text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
           >
             ...
           </span>
