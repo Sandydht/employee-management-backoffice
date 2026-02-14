@@ -48,3 +48,7 @@
   --color-disabled-text: #64748B;
   --color-disabled-bg: #E2E8F0;
 }
+
+body {
+  @apply bg-gray-100;
+}

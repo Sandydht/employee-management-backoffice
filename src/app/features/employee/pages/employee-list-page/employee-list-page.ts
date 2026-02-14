@@ -26,8 +26,6 @@ export class EmployeeListPage {
     this.paginationMeta.update((meta) => ({
       ...meta,
       page,
-      hasPrevPage: page > 1,
-      hasNextPage: page < meta.totalPages,
     }));
   }
 }
