@@ -1,6 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { SideBarService } from '../../core/services/side-bar-service/side-bar-service';
 import { RouterModule } from '@angular/router';
+import { ButtonComponent } from '../../shared/components/button/button';
+import { Store } from '@ngrx/store';
+import * as ConfirmActions from '../../shared/components/confirmation-modal/store/confirm-modal.actions';
+import { AuthService } from '../../core/services/auth-service/auth-service';
 
 type SidebarLink = {
   label: string;
@@ -9,12 +13,14 @@ type SidebarLink = {
 
 @Component({
   selector: 'app-side-bar',
-  imports: [RouterModule],
+  imports: [RouterModule, ButtonComponent],
   templateUrl: './side-bar.html',
   styleUrl: './side-bar.css',
 })
 export class SideBarComponent {
   sideBarService = inject(SideBarService);
+  private readonly store = inject(Store);
+  private readonly authService = inject(AuthService);
 
   links: SidebarLink[] = [
     {
@@ -42,4 +48,16 @@ export class SideBarComponent {
 
     return `${base} ${closeStyle}`;
   });
+
+  openConfirmationModalBox(): void {
+    this.store.dispatch(
+      ConfirmActions.openConfirmModal({
+        title: 'Logout',
+        message: 'Are you sure you want to log out?',
+        onConfirmAction: () => {
+          this.authService.logout();
+        },
+      }),
+    );
+  }
 }

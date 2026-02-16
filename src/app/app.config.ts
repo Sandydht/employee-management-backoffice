@@ -11,6 +11,10 @@ import localeId from '@angular/common/locales/id';
 import { registerLocaleData } from '@angular/common';
 import { AuthService } from './core/services/auth-service/auth-service';
 import { APP_INITIALIZER } from '@angular/core';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { confirmModalReducer } from './shared/components/confirmation-modal/store/confirm-modal.reducer';
+import { ConfirmModalEffects } from './shared/components/confirmation-modal/store/confirm-modal.effects';
 
 registerLocaleData(localeId);
 
@@ -37,5 +41,9 @@ export const appConfig: ApplicationConfig = {
       deps: [AuthService],
       multi: true,
     },
+    provideStore({
+      confirmModal: confirmModalReducer,
+    }),
+    provideEffects([ConfirmModalEffects]),
   ],
 };

@@ -68,7 +68,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   months = Array.from({ length: 12 }, (_, i) =>
-    new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date(2025, i, 1)),
+    new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(2025, i, 1)),
   );
 
   years = computed(() => {

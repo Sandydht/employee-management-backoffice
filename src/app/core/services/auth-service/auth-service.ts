@@ -7,6 +7,7 @@ import { StorageService } from '../storage-service/storage-service';
 import { environment } from '../../../../environments/environment';
 import { IS_PUBLIC_API } from '../../interceptors/request-context.interceptor';
 import { User } from '../../../features/auth/models/user.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +17,10 @@ export class AuthService {
   private readonly storageService = inject(StorageService);
   private readonly apiUrl = environment.apiUrl;
   private readonly userData = signal<User | null>(null);
+  private readonly router = inject(Router);
+  private readonly tokenSignal = signal<string | null>(this.storageService.get('token'));
 
-  token = computed(() => this.storageService.get('token'));
+  token = computed(() => this.tokenSignal());
   userFullName = computed(() => `${this.userData()?.firstName} ${this.userData()?.lastName}`);
 
   login(payload: LoginRequest): Observable<LoginResponse> {
@@ -28,6 +31,7 @@ export class AuthService {
       .pipe(
         tap((res: LoginResponse) => {
           this.storageService.set('token', res.token);
+          this.tokenSignal.set(res.token);
         }),
       );
   }
@@ -43,5 +47,6 @@ export class AuthService {
   logout(): void {
     this.storageService.clear();
     this.userData.set(null);
+    this.router.navigate(['/login']);
   }
 }
