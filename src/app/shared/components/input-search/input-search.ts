@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, computed } from '@angular/core';
+import { Component, forwardRef, input, computed, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -18,6 +18,8 @@ export class InputSearchComponent implements ControlValueAccessor {
   id = input('');
   placeholder = input('');
   disabled = input(false);
+
+  valueChange = output<string>();
 
   internalValue = '';
 
@@ -40,6 +42,7 @@ export class InputSearchComponent implements ControlValueAccessor {
     const val = (event.target as HTMLInputElement).value;
     this.internalValue = val;
     this.onChange(val);
+    this.valueChange.emit(val);
   }
 
   handleBlur(): void {

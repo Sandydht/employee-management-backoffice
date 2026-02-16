@@ -10,7 +10,7 @@ export const privateInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const token = authService.getToken;
+  const token = authService.token();
 
   if (!token) {
     return next(req);

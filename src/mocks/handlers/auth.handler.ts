@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 import UsersDummyData from '../data/users.json';
 import { LoginRequest } from '../../app/features/auth/models/login-request.model';
 import { LoginResponse } from '../../app/features/auth/models/login-response.model';
-import { encrypt } from '../utils/cryptoJs';
+import { decrypt, encrypt } from '../utils/cryptoJs';
 
 export const authHandlers = [
   http.post('/api/auth/login', async ({ request }) => {
@@ -31,5 +31,21 @@ export const authHandlers = [
     };
 
     return HttpResponse.json({ ...data }, { status: 200 });
+  }),
+
+  http.get('/api/auth/profile', async ({ request }) => {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const decryptedToken = decrypt(token);
+    const user = UsersDummyData.find((user) => user.id === decryptedToken);
+    if (!user) {
+      return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    return HttpResponse.json(user, { status: 200 });
   }),
 ];

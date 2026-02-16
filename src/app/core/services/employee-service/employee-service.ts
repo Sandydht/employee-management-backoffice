@@ -18,7 +18,8 @@ export class EmployeeService {
       .set('page', Number(payload.page || 1))
       .set('size', Number(payload.size || 10))
       .set('sortBy', String(payload.sortBy || 'updatedAt'))
-      .set('sortOrder', String(payload.sortOrder || 'desc'));
+      .set('sortOrder', String(payload.sortOrder || 'desc'))
+      .set('search', String(payload.search || ''));
 
     return this.http.get<PaginatedResult<Employee>>(`${this.apiUrl}/employee/list`, { params });
   }

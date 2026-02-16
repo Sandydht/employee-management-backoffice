@@ -1,4 +1,13 @@
-import { Component, computed, inject, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { InputSearchComponent } from '../../../../shared/components/input-search/input-search';
 import { ButtonComponent } from '../../../../shared/components/button/button';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination';
@@ -10,15 +19,31 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
 import { EmployeeService } from '../../../../core/services/employee-service/employee-service';
 import { PaginationQuery } from '../../../../shared/models/pagination-query.model';
 import { PaginatedResult } from '../../../../shared/models/paginated-result.model';
+import { CurrencyPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee-list-page',
-  imports: [InputSearchComponent, ButtonComponent, PaginationComponent, DataTableComponent],
+  imports: [
+    InputSearchComponent,
+    ButtonComponent,
+    PaginationComponent,
+    DataTableComponent,
+    CurrencyPipe,
+    FormsModule,
+  ],
   templateUrl: './employee-list-page.html',
   styleUrl: './employee-list-page.css',
 })
 export class EmployeeListPage implements OnInit {
   private readonly employeeService = inject(EmployeeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly search$ = new Subject<string>();
+
+  salaryTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('salaryTemplate');
   actionsTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('actionsTemplate');
 
   paginationMeta = signal<PaginationMeta>({
@@ -29,10 +54,9 @@ export class EmployeeListPage implements OnInit {
     hasNextPage: false,
     hasPrevPage: false,
   });
-
   sort = signal<SortState>({ key: 'updatedAt', direction: 'desc' });
-
   employees = signal<Employee[]>([]);
+  search = signal<string>('');
 
   columns = computed<Column<Employee>[]>(() => [
     {
@@ -64,6 +88,7 @@ export class EmployeeListPage implements OnInit {
       header: 'Basic Salary',
       sortKey: 'basicSalary',
       sortable: true,
+      template: this.salaryTemplate(),
     },
     {
       key: 'status',
@@ -84,8 +109,29 @@ export class EmployeeListPage implements OnInit {
     },
   ]);
 
+  query = computed<PaginationQuery>(() => ({
+    page: this.paginationMeta().page,
+    size: this.paginationMeta().size,
+    sortBy: this.sort().key,
+    sortOrder: this.sort().direction,
+    search: this.search(),
+  }));
+
   ngOnInit(): void {
     this.fetchEmployeeList();
+
+    this.search$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.search.set(value);
+
+        this.paginationMeta.update((meta) => ({
+          ...meta,
+          page: 1,
+        }));
+
+        this.fetchEmployeeList();
+      });
   }
 
   onPageChange(page: number): void {
@@ -93,7 +139,6 @@ export class EmployeeListPage implements OnInit {
       ...meta,
       page,
     }));
-
     this.fetchEmployeeList();
   }
 
@@ -103,29 +148,26 @@ export class EmployeeListPage implements OnInit {
       size,
       page: 1,
     }));
-
-    this.fetchEmployeeList();
   }
 
   onSortChange(value: SortState): void {
     this.sort.set(value);
-
     this.fetchEmployeeList();
   }
 
-  fetchEmployeeList(): void {
-    const query: PaginationQuery = {
-      page: this.paginationMeta().page,
-      size: this.paginationMeta().size,
-      sortBy: this.sort().key,
-      sortOrder: this.sort().direction,
-    };
+  onSearchChange(value: string) {
+    this.search$.next(value);
+  }
 
-    this.employeeService.getEmployeeList(query).subscribe({
-      next: (response: PaginatedResult<Employee>) => {
-        this.employees.set(response.data);
-        this.paginationMeta.set(response.meta);
-      },
-    });
+  fetchEmployeeList(): void {
+    this.employeeService
+      .getEmployeeList(this.query())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: PaginatedResult<Employee>) => {
+          this.employees.set(response.data);
+          this.paginationMeta.set(response.meta);
+        },
+      });
   }
 }
