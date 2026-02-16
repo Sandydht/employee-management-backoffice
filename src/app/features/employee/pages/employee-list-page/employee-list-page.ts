@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal, TemplateRef, viewChild } from '@angular/core';
 import { InputSearchComponent } from '../../../../shared/components/input-search/input-search';
 import { ButtonComponent } from '../../../../shared/components/button/button';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination';
@@ -15,6 +15,8 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
   styleUrl: './employee-list-page.css',
 })
 export class EmployeeListPage {
+  actionsTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('actionsTemplate');
+
   paginationMeta = signal<PaginationMeta>({
     page: 1,
     size: 10,
@@ -24,7 +26,27 @@ export class EmployeeListPage {
     hasPrevPage: true,
   });
 
-  columns: Column<Employee>[] = [
+  sort = signal<SortState>({ key: 'username', direction: 'asc' });
+
+  employees = signal<Employee[]>([
+    {
+      id: 'user-1',
+      username: 'user1',
+      firstName: 'User',
+      lastName: '1',
+      email: 'user1@email.com',
+      birthDate: '2025-03-02',
+      basicSalary: 10000000,
+      status: 'Active',
+      group: 'IT',
+      description: 'This is User 1',
+      createdAt: '',
+      updatedAt: '',
+      deletedAt: '',
+    },
+  ]);
+
+  columns = computed<Column<Employee>[]>(() => [
     {
       key: 'username',
       header: 'Username',
@@ -44,136 +66,35 @@ export class EmployeeListPage {
       sortable: true,
     },
     {
+      key: 'birthDate',
+      header: 'Birth Date',
+      sortKey: 'birthDate',
+      sortable: true,
+    },
+    {
+      key: 'basicSalary',
+      header: 'Basic Salary',
+      sortKey: 'basicSalary',
+      sortable: true,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortKey: 'status',
+      sortable: true,
+    },
+    {
+      key: 'group',
+      header: 'Group',
+      sortKey: 'group',
+      sortable: true,
+    },
+    {
       key: 'actions',
       header: 'Actions',
+      template: this.actionsTemplate(),
     },
-  ];
-
-  sort: SortState = { key: 'username', direction: 'asc' };
-
-  employees: Employee[] = [
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-    {
-      username: 'user1',
-      firstName: 'User',
-      lastName: '1',
-      email: 'user1@email.com',
-      birthDate: new Date('2026-03-02').toISOString(),
-      basicSalary: 10000,
-      status: 'Active',
-      group: 'DDL',
-      description: 'This is user 1',
-    },
-  ];
+  ]);
 
   onPageChange(page: number): void {
     this.paginationMeta.update((meta) => ({
@@ -191,6 +112,6 @@ export class EmployeeListPage {
   }
 
   onSortChange(value: SortState): void {
-    console.log('value: ', value);
+    this.sort.set(value);
   }
 }

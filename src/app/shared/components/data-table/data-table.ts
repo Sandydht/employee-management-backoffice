@@ -1,30 +1,24 @@
 import { Component, input, output } from '@angular/core';
 import { Column } from '../../models/column.model';
 import { SortState } from '../../models/sort-state.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
-  standalone: true,
+  imports: [CommonModule],
   templateUrl: './data-table.html',
   styleUrl: './data-table.css',
 })
 export class DataTableComponent<T> {
-  // Inputs
   columns = input<Column<T>[]>([]);
   datas = input<T[]>([]);
 
-  // Row key (field name)
-  rowKey = input<keyof T>();
+  rowKey = input<keyof T>('id' as keyof T);
 
-  // Sorting
-  sort = input<SortState>({
-    key: 'firstName',
-    direction: 'asc',
-  });
+  sort = input<SortState>({ key: 'updatedAt', direction: 'asc' });
 
   sortChange = output<SortState>();
 
-  // UI States
   loading = input(false);
   emptyText = input('No data available');
 
@@ -47,9 +41,14 @@ export class DataTableComponent<T> {
     return this.sort().key === (col.sortKey ?? col.key);
   }
 
-  trackRow(row: T) {
+  trackRow(index: number, row: T) {
     const key = this.rowKey();
-    return key ? row[key] : row;
+
+    if (key && row[key] != null && row[key] !== '') {
+      return row[key];
+    }
+
+    return index;
   }
 
   getCellValue(row: T, col: Column<T>) {

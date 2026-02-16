@@ -33,7 +33,7 @@ export class SideBarComponent {
 
   sideBarClasses = computed(() => {
     const base =
-      'w-full h-full min-w-[250px] max-w-[250px] lg:translate-x-0 lg:static min-h-screen max-h-screen flex flex-col items-start justify-start fixed left-0 top-0 bottom-0 z-40 border-r border-gray-100 shadow-md bg-white transform transition-transform duration-200';
+      'w-full h-auto max-w-[15rem] min-w-[15rem] flex flex-col items-start justify-start fixed top-0 left-0 bottom-0 bg-white border-r border-gray-200 shadow-md z-50 transform transition-transform duration-200';
 
     const openStyle = 'translate-x-0';
     const closeStyle = '-translate-x-full lg:translate-x-0';

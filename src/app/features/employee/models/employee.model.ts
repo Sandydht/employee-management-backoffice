@@ -1,4 +1,5 @@
 export interface Employee {
+  id: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -8,4 +9,7 @@ export interface Employee {
   status: string;
   group: string;
   description: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
 }

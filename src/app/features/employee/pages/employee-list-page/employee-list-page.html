@@ -1,4 +1,4 @@
-<div class="w-full h-auto flex flex-col items-start justify-start gap-4">
+<div class="w-full h-auto flex flex-col items-start justify-start gap-4 p-[25px] lg:px-[40px]">
   <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
     <p class="text-left text-[16px] leading-[24px] lg:text-[22px] lg:leading-7 font-bold">
       Employee List
@@ -15,7 +15,7 @@
   </div>
 
   <div
-    class="w-full h-auto bg-white rounded-lg flex flex-col items-start justify-start border border-gray-100 shadow-md overflow-hidden"
+    class="w-full h-auto bg-white rounded-lg flex flex-col items-start justify-start border border-gray-100 shadow-md"
   >
     <div class="w-full h-auto p-4 max-w-[500px]">
       <app-input-search
@@ -23,14 +23,20 @@
       ></app-input-search>
     </div>
 
-    <div
-      class="w-full h-auto flex flex-col items-start justify-start overflow-y-auto max-h-[calc(100vh-317px)] lg:max-h-[calc(100vh-314px)]"
-    >
+    <div class="w-full h-auto flex flex-col items-start justify-start">
       <div class="w-full h-auto border-b-2 border-gray-100 overflow-x-auto">
+        <ng-template #actionsTemplate let-employee>
+          <div class="flex gap-2">
+            <app-button> Edit </app-button>
+
+            <app-button variant="danger"> Delete </app-button>
+          </div>
+        </ng-template>
+
         <app-data-table
-          [columns]="columns"
-          [sort]="sort"
-          [datas]="employees"
+          [columns]="columns()"
+          [sort]="sort()"
+          [datas]="employees()"
           (sortChange)="onSortChange($event)"
         ></app-data-table>
       </div>
