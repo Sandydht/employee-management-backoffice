@@ -23,4 +23,8 @@ export class EmployeeService {
 
     return this.http.get<PaginatedResult<Employee>>(`${this.apiUrl}/employee/list`, { params });
   }
+
+  getEmployeeDetail(id: string | null): Observable<Employee> {
+    return this.http.get<Employee>(`${this.apiUrl}/employee/${id}`);
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, DestroyRef } from '@angular/core';
 import { InputComponent } from '../../../../shared/components/input/input';
 import { InputPasswordComponent } from '../../../../shared/components/input-password/input-password';
 import { ButtonComponent } from '../../../../shared/components/button/button';
@@ -6,6 +6,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth-service/auth-service';
 import { LoginRequest } from '../../models/login-request.model';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-login-page',
@@ -14,9 +15,10 @@ import { Router } from '@angular/router';
   styleUrl: './login-page.css',
 })
 export class LoginPage {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(false);
   serverError = signal('');
@@ -57,15 +59,18 @@ export class LoginPage {
 
     const payload: LoginRequest = this.form.getRawValue();
 
-    this.authService.login(payload).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.serverError.set(err.error.message);
-      },
-    });
+    this.authService
+      .login(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.serverError.set(err.error.message);
+        },
+      });
   }
 }

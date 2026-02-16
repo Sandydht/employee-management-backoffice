@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, computed, output } from '@angular/core';
+import { Component, forwardRef, input, computed, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -15,19 +15,19 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class InputSearchComponent implements ControlValueAccessor {
-  id = input('');
-  placeholder = input('');
-  disabled = input(false);
+  id = input<string>('');
+  placeholder = input<string>('');
+  disabled = input<boolean>(false);
 
   valueChange = output<string>();
 
-  internalValue = '';
+  internalValue = signal<string>('');
 
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
 
   writeValue(value: string): void {
-    this.internalValue = value ?? '';
+    this.internalValue.set(value ?? '');
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -40,7 +40,7 @@ export class InputSearchComponent implements ControlValueAccessor {
 
   handleInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
-    this.internalValue = val;
+    this.internalValue.set(val);
     this.onChange(val);
     this.valueChange.emit(val);
   }

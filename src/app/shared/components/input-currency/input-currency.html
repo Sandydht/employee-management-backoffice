@@ -1,4 +1,4 @@
-<div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+<div class="w-full flex flex-col gap-1">
   @if (label()) {
     <label [for]="id()" class="text-sm font-medium text-[var(--color-primary-dark)]">
       {{ label() }}
@@ -6,12 +6,11 @@
   }
 
   <input
+    #currencyInput
     [id]="id()"
-    [type]="type()"
     [placeholder]="placeholder()"
     [disabled]="disabled()"
     [class]="inputClasses()"
-    [value]="internalValue()"
     (input)="handleInput($event)"
     (blur)="handleBlur()"
   />

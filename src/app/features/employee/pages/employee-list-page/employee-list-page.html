@@ -25,14 +25,18 @@
     </div>
 
     <div class="w-full h-auto flex flex-col items-start justify-start">
-      <div class="w-full h-auto border-b-2 border-gray-100 overflow-x-auto">
+      <div class="w-full h-auto max-h-[610px] border-b-2 border-gray-100 overflow-x-auto">
+        <ng-template #birthDateTemplate let-employee>
+          {{ employee.birthDate | date: 'dd MMM yyyy' }}
+        </ng-template>
+
         <ng-template #salaryTemplate let-employee>
           {{ employee.basicSalary | currency: 'IDR' : 'symbol' : '1.0-0' }}
         </ng-template>
 
         <ng-template #actionsTemplate let-employee>
           <div class="flex gap-2">
-            <app-button> Edit </app-button>
+            <app-button type="button" (click)="goToEditPage(employee.id)"> Edit </app-button>
             <app-button variant="danger"> Delete </app-button>
           </div>
         </ng-template>

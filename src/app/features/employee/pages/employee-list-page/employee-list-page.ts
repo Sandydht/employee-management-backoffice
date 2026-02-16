@@ -19,11 +19,12 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
 import { EmployeeService } from '../../../../core/services/employee-service/employee-service';
 import { PaginationQuery } from '../../../../shared/models/pagination-query.model';
 import { PaginatedResult } from '../../../../shared/models/paginated-result.model';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-employee-list-page',
@@ -34,6 +35,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     DataTableComponent,
     CurrencyPipe,
     FormsModule,
+    DatePipe,
   ],
   templateUrl: './employee-list-page.html',
   styleUrl: './employee-list-page.css',
@@ -41,8 +43,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 export class EmployeeListPage implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly search$ = new Subject<string>();
 
+  birthDateTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('birthDateTemplate');
   salaryTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('salaryTemplate');
   actionsTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('actionsTemplate');
 
@@ -82,6 +86,7 @@ export class EmployeeListPage implements OnInit {
       header: 'Birth Date',
       sortKey: 'birthDate',
       sortable: true,
+      template: this.birthDateTemplate(),
     },
     {
       key: 'basicSalary',
@@ -169,5 +174,9 @@ export class EmployeeListPage implements OnInit {
           this.paginationMeta.set(response.meta);
         },
       });
+  }
+
+  goToEditPage(userId: string): void {
+    this.router.navigate([`/employees/${userId}/edit`]);
   }
 }

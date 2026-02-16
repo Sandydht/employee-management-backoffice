@@ -1,36 +1,29 @@
-import { Component, input, computed, signal, forwardRef } from '@angular/core';
+import { Component, computed, forwardRef, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-input-password',
-  standalone: true,
-  templateUrl: './input-password.html',
-  styleUrl: './input-password.css',
+  selector: 'app-textarea',
+  imports: [],
+  templateUrl: './textarea.html',
+  styleUrl: './textarea.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputPasswordComponent),
+      useExisting: forwardRef(() => TextareaComponent),
       multi: true,
     },
   ],
 })
-export class InputPasswordComponent implements ControlValueAccessor {
+export class TextareaComponent implements ControlValueAccessor {
   id = input<string>('');
   label = input<string>('');
   placeholder = input<string>('');
   disabled = input<boolean>(false);
   error = input<string>('');
 
+  valueChange = output<string>();
+
   internalValue = signal<string>('');
-
-  visible = signal<boolean>(false);
-
-  toggleVisibility(): void {
-    if (this.disabled()) return;
-    this.visible.update((v) => !v);
-  }
-
-  actualType = computed(() => (this.visible() ? 'text' : 'password'));
 
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -50,6 +43,7 @@ export class InputPasswordComponent implements ControlValueAccessor {
   handleInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.internalValue.set(val);
+    this.valueChange.emit(val);
     this.onChange(val);
   }
 
@@ -58,7 +52,8 @@ export class InputPasswordComponent implements ControlValueAccessor {
   }
 
   inputClasses = computed(() => {
-    const base = 'w-full pl-4 py-2 pr-12 rounded-lg border text-sm outline-none transition';
+    const base =
+      'w-full p-4 min-h-[150px] rounded-lg border text-sm outline-none transition resize-none';
 
     const normal = `
       border-[var(--color-quaternary)]
@@ -85,14 +80,5 @@ export class InputPasswordComponent implements ControlValueAccessor {
     if (this.error()) return `${base} ${errorStyle}`;
 
     return `${base} ${normal}`;
-  });
-
-  eyeButtonClasses = computed(() => {
-    return `
-      absolute right-4 top-1/2 -translate-y-1/2
-      w-6 h-6 flex items-center justify-center
-      rounded-md
-      ${this.disabled() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-100'}
-    `;
   });
 }

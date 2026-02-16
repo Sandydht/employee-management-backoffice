@@ -131,4 +131,30 @@ export const employeeHandlers = [
 
     return HttpResponse.json(result, { status: 200 });
   }),
+
+  http.get('/api/employee/:id', async ({ params, request }) => {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const decryptedToken = decrypt(token);
+    const user = UsersDummyData.find((user) => user.id === decryptedToken);
+    if (!user) {
+      return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = params;
+    if (!id) {
+      return HttpResponse.json({ message: 'Invalid id' }, { status: 400 });
+    }
+
+    const employee: Employee | null = EmployeesDummyData.find((data) => data.id === id) as Employee;
+    if (!employee) {
+      return HttpResponse.json({ message: 'Employee not found' }, { status: 404 });
+    }
+
+    return HttpResponse.json(employee, { status: 200 });
+  }),
 ];
