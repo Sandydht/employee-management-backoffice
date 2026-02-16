@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { HttpInterceptorFn } from '@angular/common/http';
-import { IS_PUBLIC_API } from './request-context';
+import { IS_PUBLIC_API } from './request-context.interceptor';
 import { AuthService } from '../services/auth-service/auth-service';
 
 export const privateInterceptor: HttpInterceptorFn = (req, next) => {

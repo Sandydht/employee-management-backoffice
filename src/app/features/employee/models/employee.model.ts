@@ -10,6 +10,6 @@ export interface Employee {
   group: string;
   description: string;
   createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
+  updatedAt: string | null;
+  deletedAt: string | null;
 }

@@ -5,14 +5,14 @@ import { Observable, tap } from 'rxjs';
 import { LoginResponse } from '../../../features/auth/models/login-response.model';
 import { StorageService } from '../storage-service/storage-service';
 import { environment } from '../../../../environments/environment';
-import { IS_PUBLIC_API } from '../../interceptors/request-context';
+import { IS_PUBLIC_API } from '../../interceptors/request-context.interceptor';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private storageService = inject(StorageService);
+  private readonly http = inject(HttpClient);
+  private readonly storageService = inject(StorageService);
   private loggedIn = signal(false);
   private readonly apiUrl = environment.apiUrl;
 

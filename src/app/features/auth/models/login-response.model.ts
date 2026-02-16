@@ -1,8 +1,12 @@
 export interface LoginResponse {
   token: string;
   user: {
-    id: number;
+    id: string;
     username: string;
-    fullname: string;
+    firstName: string;
+    lastName: string;
+    createdAt: string;
+    updatedAt: string | null;
+    deletedAt: string | null;
   };
 }
