@@ -138,12 +138,19 @@ export class EmployeeEditPage implements OnInit {
     this.router.navigate(['/employees']);
   }
 
+  formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   submit(): void {
     console.log(this.form.controls.username.value);
     console.log(this.form.controls.firstName.value);
     console.log(this.form.controls.lastName.value);
     console.log(this.form.controls.email.value);
-    console.log(this.form.controls.birthDate.value);
+    console.log(this.formatDate(new Date(this.form.controls.birthDate.value)));
     console.log(this.form.controls.basicSalary.value);
     console.log(this.form.controls.group.value);
     console.log(this.form.controls.description.value);

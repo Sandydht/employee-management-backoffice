@@ -3,101 +3,95 @@ import {
   Component,
   computed,
   ElementRef,
+  forwardRef,
   input,
+  output,
   signal,
   ViewChild,
 } from '@angular/core';
-import { ClickOutsideDirective } from '../../directives/click-outside/click-outside';
 import { CommonModule } from '@angular/common';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { ClickOutsideDirective } from '../../directives/click-outside/click-outside';
 import { CalendarDay } from '../../models/calendar-day.model';
 
 @Component({
   selector: 'app-input-date',
-  imports: [ClickOutsideDirective, CommonModule],
+  imports: [CommonModule, ClickOutsideDirective],
   templateUrl: './input-date.html',
   styleUrl: './input-date.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputDateComponent),
+      multi: true,
+    },
+  ],
 })
-export class InputDateComponent implements AfterViewInit {
+export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
+  // =========================
+  // INPUTS
+  // =========================
   id = input<string>('');
   label = input<string>('Datepicker');
   placeholder = input<string>('Choose Date');
-  disabled = input<boolean>(false);
   error = input<string>('');
+
   minDate = input<Date | null>(null);
   maxDate = input<Date | null>(new Date());
 
-  @ViewChild('dropdownPanel')
-  dropdownPanel!: ElementRef<HTMLDivElement>;
-  @ViewChild('triggerBtn')
-  triggerBtn!: ElementRef<HTMLButtonElement>;
-  openDropdown = signal<boolean>(false);
+  // Disabled support
+  disabledInput = input<boolean>(false);
+  disabledState = signal(false);
+
+  disabled = computed(() => this.disabledInput() || this.disabledState());
+
+  // Output optional
+  valueChange = output<string>();
+
+  // =========================
+  // INTERNAL STATE
+  // =========================
+  selectedDate = signal<Date | null>(null);
+
+  openDropdown = signal(false);
 
   today = new Date();
+  currentMonth = signal(this.today.getMonth());
+  currentYear = signal(this.today.getFullYear());
 
-  currentMonth = signal<number>(this.today.getMonth());
-  currentYear = signal<number>(this.today.getFullYear());
-  selectedDate = signal<Date | null>(null);
   dropdownPosition = signal<'bottom' | 'top'>('bottom');
+
+  @ViewChild('triggerBtn')
+  triggerBtn!: ElementRef<HTMLButtonElement>;
 
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+  months = Array.from({ length: 12 }, (_, i) =>
+    new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date(2025, i, 1)),
+  );
 
   years = computed(() => {
-    const now = new Date().getFullYear();
-    return Array.from({ length: 50 }, (_, i) => now - 25 + i);
-  });
+    const selected = this.selectedDate();
 
-  days = computed(() => {
-    const year = this.currentYear();
-    const month = this.currentMonth();
+    // kalau sudah ada tanggal terpilih → jadikan anchor
+    const anchorYear = selected ? selected.getFullYear() : new Date().getFullYear();
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const totalDays = new Date(year, month + 1, 0).getDate();
-    const prevMonthDays = new Date(year, month, 0).getDate();
+    const min = this.minDate()?.getFullYear() ?? anchorYear - 50;
+    const max = this.maxDate()?.getFullYear() ?? anchorYear + 10;
 
-    const result: CalendarDay[] = [];
+    const result: number[] = [];
 
-    // Bulan sebelumnya
-    for (let i = firstDay - 1; i >= 0; i--) {
-      result.push({
-        day: prevMonthDays - i,
-        monthOffset: -1,
-      });
-    }
-
-    // Bulan sekarang
-    for (let i = 1; i <= totalDays; i++) {
-      result.push({
-        day: i,
-        monthOffset: 0,
-      });
-    }
-
-    // Bulan berikutnya
-    while (result.length < 42) {
-      result.push({
-        day: result.length - (firstDay + totalDays) + 1,
-        monthOffset: 1,
-      });
+    for (let y = min; y <= max; y++) {
+      result.push(y);
     }
 
     return result;
   });
 
+  // =========================
+  // INPUT CLASSES
+  // =========================
   inputClasses = computed(() => {
     const base =
       'w-full px-4 py-2 rounded-lg border text-sm outline-none transition flex items-center justify-start';
@@ -130,80 +124,122 @@ export class InputDateComponent implements AfterViewInit {
     return `${base} ${normal}`;
   });
 
-  canGoNext = computed(() => {
-    let month = this.currentMonth();
+  // =========================
+  // CVA CALLBACKS
+  // =========================
+  private onChange: (value: string) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  // =========================
+  // DATE HELPERS
+  // =========================
+  formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  parseDate(value: string | null): Date | null {
+    if (!value) return null;
+
+    const clean = value.split('T')[0];
+    const parts = clean.split('-');
+
+    if (parts.length !== 3) return null;
+
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+
+    if (!year || !month || !day) return null;
+
+    const date = new Date(year, month - 1, day);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  // =========================
+  // MONTH OFFSET RESOLVER
+  // =========================
+  resolveMonthYear(offset: number): { month: number; year: number } {
+    let month = this.currentMonth() + offset;
     let year = this.currentYear();
 
-    if (month === 11) {
-      month = 0;
-      year++;
-    } else {
-      month++;
-    }
-
-    return this.canNavigateTo(month, year);
-  });
-
-  canGoPrev = computed(() => {
-    let month = this.currentMonth();
-    let year = this.currentYear();
-
-    if (month === 0) {
+    if (month < 0) {
       month = 11;
       year--;
-    } else {
-      month--;
     }
 
-    return this.canNavigateTo(month, year);
-  });
-
-  ngAfterViewInit() {
-    window.addEventListener('resize', () => {
-      if (this.openDropdown()) {
-        this.calculateDropdownPosition();
-      }
-    });
-  }
-
-  nextMonth(): void {
-    let month = this.currentMonth();
-    let year = this.currentYear();
-
-    // hitung target month/year
-    if (month === 11) {
+    if (month > 11) {
       month = 0;
       year++;
-    } else {
-      month++;
     }
 
-    // stop kalau melewati maxDate
-    if (!this.canNavigateTo(month, year)) return;
-
-    this.currentMonth.set(month);
-    this.currentYear.set(year);
+    return { month, year };
   }
 
-  prevMonth(): void {
-    let month = this.currentMonth();
-    let year = this.currentYear();
+  // =========================
+  // CALENDAR DAYS
+  // =========================
+  days = computed(() => {
+    const year = this.currentYear();
+    const month = this.currentMonth();
 
-    // hitung target month/year
-    if (month === 0) {
-      month = 11;
-      year--;
-    } else {
-      month--;
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    const result: CalendarDay[] = [];
+
+    for (let i = firstDay - 1; i >= 0; i--) {
+      result.push({ day: prevMonthDays - i, monthOffset: -1 });
     }
 
-    // stop kalau melewati minDate
-    if (!this.canNavigateTo(month, year)) return;
+    for (let i = 1; i <= totalDays; i++) {
+      result.push({ day: i, monthOffset: 0 });
+    }
 
-    this.currentMonth.set(month);
-    this.currentYear.set(year);
+    while (result.length < 42) {
+      result.push({
+        day: result.length - (firstDay + totalDays) + 1,
+        monthOffset: 1,
+      });
+    }
+
+    return result;
+  });
+
+  // =========================
+  // CVA METHODS
+  // =========================
+  writeValue(value: string | null): void {
+    const date = this.parseDate(value);
+
+    this.selectedDate.set(date);
+
+    if (date) {
+      queueMicrotask(() => {
+        this.currentMonth.set(date.getMonth());
+        this.currentYear.set(date.getFullYear());
+      });
+    }
   }
 
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabledState.set(isDisabled);
+  }
+
+  // =========================
+  // NAVIGATION LIMITS
+  // =========================
   canNavigateTo(month: number, year: number): boolean {
     const min = this.minDate();
     const max = this.maxDate();
@@ -223,150 +259,123 @@ export class InputDateComponent implements AfterViewInit {
     return true;
   }
 
-  selectDate(item: CalendarDay): void {
-    if (this.isDisabledDate(item)) return;
+  canGoNext = computed(() => {
+    let m = this.currentMonth();
+    let y = this.currentYear();
 
-    // Hitung month/year target
-    let month = this.currentMonth() + item.monthOffset;
-    let year = this.currentYear();
-
-    // Adjust kalau overflow
-    if (month < 0) {
-      month = 11;
-      year--;
-    }
-
-    if (month > 11) {
-      month = 0;
-      year++;
-    }
-
-    // Set calendar view ke bulan baru
-    this.currentMonth.set(month);
-    this.currentYear.set(year);
-
-    // Set selected date
-    const date = new Date(year, month, item.day);
-
-    this.selectedDate.set(date);
-
-    this.closeDropdown();
-  }
-
-  isSelected(item: CalendarDay): boolean {
-    const selected = this.selectedDate();
-    if (!selected) return false;
-
-    const month = this.currentMonth() + item.monthOffset;
-    const year = this.currentYear();
-
-    return (
-      selected.getFullYear() === year &&
-      selected.getMonth() === month &&
-      selected.getDate() === item.day
-    );
-  }
-
-  isToday(item: CalendarDay): boolean {
-    const now = new Date();
-
-    return (
-      now.getFullYear() === this.currentYear() &&
-      now.getMonth() === this.currentMonth() &&
-      now.getDate() === item.day
-    );
-  }
-
-  normalize(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  }
-
-  isDisabledDate(item: { day: number; monthOffset: -1 | 0 | 1 }): boolean {
-    const month = this.currentMonth() + item.monthOffset;
-    const year = this.currentYear();
-
-    const date = this.normalize(new Date(year, month, item.day));
-
-    const min = this.minDate() ? this.normalize(this.minDate()!) : null;
-    const max = this.maxDate() ? this.normalize(this.maxDate()!) : null;
-
-    if (min && date < min) return true;
-    if (max && date > max) return true;
-
-    return false;
-  }
-
-  toggleDropdown(): void {
-    this.openDropdown.update((value) => !value);
-
-    if (!this.openDropdown()) return;
-
-    const selected = this.selectedDate();
-
-    if (selected) {
-      this.currentMonth.set(selected.getMonth());
-      this.currentYear.set(selected.getFullYear());
-    }
-
-    setTimeout(() => {
-      this.calculateDropdownPosition();
-    });
-  }
-
-  closeDropdown(): void {
-    this.openDropdown.set(false);
-  }
-
-  calculateDropdownPosition(): void {
-    const panelHeight = 360; // estimasi tinggi dropdown
-    const rect = this.triggerBtn.nativeElement.getBoundingClientRect();
-
-    const spaceBelow = window.innerHeight - rect.top;
-    const spaceAbove = rect.top;
-
-    if (spaceBelow < panelHeight && spaceAbove > panelHeight) {
-      this.dropdownPosition.set('top');
+    if (m === 11) {
+      m = 0;
+      y++;
     } else {
-      this.dropdownPosition.set('bottom');
+      m++;
     }
+
+    return this.canNavigateTo(m, y);
+  });
+
+  canGoPrev = computed(() => {
+    let m = this.currentMonth();
+    let y = this.currentYear();
+
+    if (m === 0) {
+      m = 11;
+      y--;
+    } else {
+      m--;
+    }
+
+    return this.canNavigateTo(m, y);
+  });
+
+  nextMonth(): void {
+    if (!this.canGoNext()) return;
+
+    let m = this.currentMonth();
+    let y = this.currentYear();
+
+    if (m === 11) {
+      m = 0;
+      y++;
+    } else {
+      m++;
+    }
+
+    this.currentMonth.set(m);
+    this.currentYear.set(y);
   }
 
-  onMonthChange(event: Event): void {
-    const value = Number((event.target as HTMLSelectElement).value);
+  prevMonth(): void {
+    if (!this.canGoPrev()) return;
 
-    this.currentMonth.set(value);
+    let m = this.currentMonth();
+    let y = this.currentYear();
 
-    // kalau selectedDate ada, update juga biar sync
-    const selected = this.selectedDate();
-    if (selected) {
-      this.selectedDate.set(new Date(this.currentYear(), value, selected.getDate()));
+    if (m === 0) {
+      m = 11;
+      y--;
+    } else {
+      m--;
     }
+
+    this.currentMonth.set(m);
+    this.currentYear.set(y);
+  }
+
+  // =========================
+  // MONTH/YEAR CHANGE (SYNC FIX)
+  // =========================
+  onMonthChange(event: Event): void {
+    const month = Number((event.target as HTMLSelectElement).value);
+
+    this.currentMonth.set(month);
+
+    const selected = this.selectedDate();
+    if (!selected) return;
+
+    const day = selected.getDate();
+    const maxDay = new Date(this.currentYear(), month + 1, 0).getDate();
+    const safeDay = Math.min(day, maxDay);
+
+    const newDate = new Date(this.currentYear(), month, safeDay);
+
+    this.selectedDate.set(newDate);
+
+    const formatted = this.formatDate(newDate);
+    this.onChange(formatted);
+    this.valueChange.emit(formatted);
   }
 
   onYearChange(event: Event): void {
-    const value = Number((event.target as HTMLSelectElement).value);
+    const year = Number((event.target as HTMLSelectElement).value);
 
-    this.currentYear.set(value);
+    this.currentYear.set(year);
 
     const selected = this.selectedDate();
-    if (selected) {
-      this.selectedDate.set(new Date(value, this.currentMonth(), selected.getDate()));
-    }
+    if (!selected) return;
+
+    const month = this.currentMonth();
+    const day = selected.getDate();
+
+    const maxDay = new Date(year, month + 1, 0).getDate();
+    const safeDay = Math.min(day, maxDay);
+
+    const newDate = new Date(year, month, safeDay);
+
+    this.selectedDate.set(newDate);
+
+    const formatted = this.formatDate(newDate);
+    this.onChange(formatted);
+    this.valueChange.emit(formatted);
   }
 
   isMonthDisabled(month: number): boolean {
     const year = this.currentYear();
-
     const min = this.minDate();
     const max = this.maxDate();
 
-    if (min && year === min.getFullYear() && month < min.getMonth()) {
-      return true;
-    }
+    if (min && year === min.getFullYear() && month < min.getMonth()) return true;
 
-    if (max && year === max.getFullYear() && month > max.getMonth()) {
-      return true;
-    }
+    if (max && year === max.getFullYear() && month > max.getMonth()) return true;
 
     return false;
   }
@@ -379,5 +388,112 @@ export class InputDateComponent implements AfterViewInit {
     if (max && year > max.getFullYear()) return true;
 
     return false;
+  }
+
+  // =========================
+  // SELECT DATE
+  // =========================
+  selectDate(item: CalendarDay): void {
+    if (this.isDisabledDate(item)) return;
+
+    const { month, year } = this.resolveMonthYear(item.monthOffset);
+
+    this.currentMonth.set(month);
+    this.currentYear.set(year);
+
+    const dateObj = new Date(year, month, item.day);
+
+    this.selectedDate.set(dateObj);
+
+    const formatted = this.formatDate(dateObj);
+
+    this.valueChange.emit(formatted);
+    this.onChange(formatted);
+    this.onTouched();
+
+    this.closeDropdown();
+  }
+
+  // =========================
+  // HELPERS
+  // =========================
+  normalize(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  isDisabledDate(item: CalendarDay): boolean {
+    const { month, year } = this.resolveMonthYear(item.monthOffset);
+
+    const date = this.normalize(new Date(year, month, item.day));
+
+    const min = this.minDate() ? this.normalize(this.minDate()!) : null;
+    const max = this.maxDate() ? this.normalize(this.maxDate()!) : null;
+
+    if (min && date < min) return true;
+    if (max && date > max) return true;
+
+    return false;
+  }
+
+  isSelected(item: CalendarDay): boolean {
+    const selected = this.selectedDate();
+    if (!selected) return false;
+
+    const { month, year } = this.resolveMonthYear(item.monthOffset);
+
+    return (
+      selected.getFullYear() === year &&
+      selected.getMonth() === month &&
+      selected.getDate() === item.day
+    );
+  }
+
+  isToday(item: CalendarDay): boolean {
+    const now = new Date();
+
+    const { month, year } = this.resolveMonthYear(item.monthOffset);
+
+    return now.getFullYear() === year && now.getMonth() === month && now.getDate() === item.day;
+  }
+
+  // =========================
+  // DROPDOWN
+  // =========================
+  toggleDropdown(): void {
+    if (this.disabled()) return;
+
+    this.openDropdown.update((v) => !v);
+
+    if (this.openDropdown()) {
+      const selected = this.selectedDate();
+      if (selected) {
+        this.currentMonth.set(selected.getMonth());
+        this.currentYear.set(selected.getFullYear());
+      }
+
+      setTimeout(() => this.calculateDropdownPosition());
+    }
+  }
+
+  closeDropdown(): void {
+    this.openDropdown.set(false);
+  }
+
+  calculateDropdownPosition(): void {
+    const panelHeight = 360;
+    const rect = this.triggerBtn.nativeElement.getBoundingClientRect();
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    this.dropdownPosition.set(
+      spaceBelow < panelHeight && spaceAbove > panelHeight ? 'top' : 'bottom',
+    );
+  }
+
+  ngAfterViewInit(): void {
+    window.addEventListener('resize', () => {
+      if (this.openDropdown()) this.calculateDropdownPosition();
+    });
   }
 }

@@ -179,4 +179,8 @@ export class EmployeeListPage implements OnInit {
   goToEditPage(userId: string): void {
     this.router.navigate([`/employees/${userId}/edit`]);
   }
+
+  goToAddPage(): void {
+    this.router.navigate(['/employees/add']);
+  }
 }
