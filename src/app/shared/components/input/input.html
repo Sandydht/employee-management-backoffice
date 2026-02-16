@@ -1,6 +1,6 @@
 <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
   @if (label()) {
-    <label [for]="id()" class="text-sm font-medium text-[var(--color-primary-dark)]">
+    <label [htmlFor]="id()" class="text-sm font-medium text-[var(--color-primary-dark)]">
       {{ label() }}
     </label>
   }

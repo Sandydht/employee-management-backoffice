@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Employee } from '../../models/employee.model';
 import { InputCurrencyComponent } from '../../../../shared/components/input-currency/input-currency';
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea';
+import { InputDateComponent } from '../../../../shared/components/input-date/input-date';
 
 @Component({
   selector: 'app-employee-edit-page',
@@ -17,6 +18,7 @@ import { TextareaComponent } from '../../../../shared/components/textarea/textar
     ReactiveFormsModule,
     InputCurrencyComponent,
     TextareaComponent,
+    InputDateComponent,
   ],
   templateUrl: './employee-edit-page.html',
   styleUrl: './employee-edit-page.css',
