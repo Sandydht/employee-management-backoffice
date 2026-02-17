@@ -19,18 +19,22 @@ import { snackbarReducer } from './shared/components/snackbar/store/snackbar.red
 import { SnackbarEffects } from './shared/components/snackbar/store/snackbar.effects';
 import { sidebarReducer } from './layouts/side-bar/store/sidebar.reducer';
 import { SidebarEffects } from './layouts/side-bar/store/sidebar.effects';
+import { firstValueFrom } from 'rxjs';
 import { MockDbInitService } from '../mocks/indexed-db/mock-db-init.mock-db.service';
 
 registerLocaleData(localeId);
 
-const initAuth = (auth: AuthService) => {
-  return () => {
+export function initApp(auth: AuthService, db: MockDbInitService) {
+  return async () => {
+    await db.init();
+
+    auth.loadToken();
+
     if (auth.token()) {
-      return auth.getProfile().toPromise();
+      await firstValueFrom(auth.getProfile());
     }
-    return Promise.resolve();
   };
-};
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,8 +46,8 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'id-ID' },
     {
       provide: APP_INITIALIZER,
-      useFactory: initAuth,
-      deps: [AuthService],
+      useFactory: initApp,
+      deps: [AuthService, MockDbInitService],
       multi: true,
     },
     provideStore({
@@ -52,11 +56,5 @@ export const appConfig: ApplicationConfig = {
       sidebar: sidebarReducer,
     }),
     provideEffects([ConfirmModalEffects, SnackbarEffects, SidebarEffects]),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (service: MockDbInitService) => () => service.init(),
-      deps: [MockDbInitService],
-      multi: true,
-    },
   ],
 };

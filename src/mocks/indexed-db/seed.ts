@@ -11,8 +11,6 @@ export async function seedEmployeesIfEmpty(): Promise<void> {
   const toSnakeCasePipe = new ToSnakeCasePipe();
 
   if (count === 0) {
-    console.log('Seeding dummy employee into IndexedDB...');
-
     const employees: Employee[] = EmployeeDummyData.map((data) => ({
       ...data,
       status: data.status as EmployeeStatus,
@@ -20,8 +18,6 @@ export async function seedEmployeesIfEmpty(): Promise<void> {
     }));
 
     await db.employees.bulkAdd(employees);
-
-    console.log('Dummy employee seeded successfully!');
   }
 }
 
@@ -29,11 +25,7 @@ export async function seedUsersIfEmpty(): Promise<void> {
   const count = await db.users.count();
 
   if (count === 0) {
-    console.log('Seeding dummy user into IndexedDB...');
-
     const users: User[] = UserDummyData;
     await db.users.bulkAdd(users);
-
-    console.log('Dummy user seeded successfully!');
   }
 }
