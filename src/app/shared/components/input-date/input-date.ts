@@ -119,7 +119,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor, 
 
     if (this.disabled()) return `${base} ${disabledStyle}`;
     if (this.error()) return `${base} ${errorStyle}`;
-    if (!this.selectedDate()) return `${base} ${emptyStyle}`;
+    if (!this.selectedDate()) return `${base} ${normal} ${emptyStyle}`;
 
     return `${base} ${normal}`;
   });
