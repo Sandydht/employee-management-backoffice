@@ -1,0 +1,9 @@
+<div class="w-full h-auto rounded-lg bg-white border border-gray-100 shadow-md">
+  <div class="w-full h-auto p-4 border-b-2 border-gray-100">
+    <p class="text-left text-[16px] leading-[24px] font-semibold">Recent Employees</p>
+  </div>
+
+  <div class="w-full h-auto overflow-x-auto min-h-[352px] max-h-[352px]">
+    <app-data-table [columns]="columns()" [datas]="employees()"></app-data-table>
+  </div>
+</div>
