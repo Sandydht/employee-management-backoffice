@@ -24,7 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import * as ConfirmaActions from '../../../../shared/components/confirmation-modal/store/confirm-modal.actions';
 import { Store } from '@ngrx/store';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
@@ -50,6 +50,7 @@ export class EmployeeListPage implements OnInit {
   private readonly router = inject(Router);
   private readonly search$ = new Subject<string>();
   private readonly store = inject(Store);
+  private readonly route = inject(ActivatedRoute);
 
   usernameTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('usernameTemplate');
   birthDateTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('birthDateTemplate');
@@ -130,20 +131,24 @@ export class EmployeeListPage implements OnInit {
   }));
 
   ngOnInit(): void {
-    this.fetchEmployeeList();
+    this.route.queryParams.subscribe((params) => {
+      this.paginationMeta.update((meta) => ({
+        ...meta,
+        page: Number(params['page']) || 1,
+        size: Number(params['size']) || 10,
+      }));
 
-    this.search$
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.search.set(value);
-
-        this.paginationMeta.update((meta) => ({
-          ...meta,
-          page: 1,
-        }));
-
-        this.fetchEmployeeList();
+      this.sort.set({
+        key: params['sortBy'] || 'createdAt',
+        direction: params['sortOrder'] || 'desc',
       });
+
+      this.search.set(params['search'] || '');
+
+      this.fetchEmployeeList();
+    });
+
+    this.setupSearchListener();
   }
 
   onPageChange(page: number): void {
@@ -151,7 +156,7 @@ export class EmployeeListPage implements OnInit {
       ...meta,
       page,
     }));
-    this.fetchEmployeeList();
+    this.updateQueryParams();
   }
 
   onPageSizeChange(size: number): void {
@@ -160,11 +165,12 @@ export class EmployeeListPage implements OnInit {
       size,
       page: 1,
     }));
+    this.updateQueryParams();
   }
 
   onSortChange(value: SortState): void {
     this.sort.set(value);
-    this.fetchEmployeeList();
+    this.updateQueryParams();
   }
 
   onSearchChange(value: string) {
@@ -184,11 +190,11 @@ export class EmployeeListPage implements OnInit {
   }
 
   goToEditPage(userId: string): void {
-    this.router.navigate([`/employees/${userId}/edit`]);
+    this.router.navigate([`/employees/${userId}/edit`], { queryParamsHandling: 'preserve' });
   }
 
   goToAddPage(): void {
-    this.router.navigate(['/employees/add']);
+    this.router.navigate(['/employees/add'], { queryParamsHandling: 'preserve' });
   }
 
   openConfirmationModalBoxDeleteEmployee(userId: string): void {
@@ -224,5 +230,34 @@ export class EmployeeListPage implements OnInit {
         },
       }),
     );
+  }
+
+  setupSearchListener(): void {
+    this.search$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.search.set(value);
+
+        this.paginationMeta.update((meta) => ({
+          ...meta,
+          page: 1,
+        }));
+
+        this.updateQueryParams();
+      });
+  }
+
+  updateQueryParams(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: this.paginationMeta().page,
+        size: this.paginationMeta().size,
+        sortBy: this.sort().key,
+        sortOrder: this.sort().direction,
+        search: this.search(),
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 }

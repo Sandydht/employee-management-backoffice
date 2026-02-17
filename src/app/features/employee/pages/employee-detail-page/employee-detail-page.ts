@@ -32,7 +32,7 @@ export class EmployeeDetailPage implements OnInit {
   }
 
   goToEmployeeListPage(): void {
-    this.router.navigate(['/employees']);
+    this.router.navigate(['/employees'], { queryParamsHandling: 'preserve' });
   }
 
   fetchEmployeeData(): void {

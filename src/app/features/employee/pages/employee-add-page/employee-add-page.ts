@@ -159,7 +159,7 @@ export class EmployeeAddPage {
   }
 
   goToEmployeeListPage(): void {
-    this.router.navigate(['/employees']);
+    this.router.navigate(['/employees'], { queryParamsHandling: 'preserve' });
   }
 
   formatDate(date: Date): string {

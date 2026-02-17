@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'outlinePrimary';
 export type ButtonType = 'button' | 'submit';
 
 @Component({
@@ -40,6 +40,15 @@ export class ButtonComponent {
         text-white
         hover:bg-[var(--color-danger-dark)]
         active:bg-[var(--color-danger-dark)]
+        cursor-pointer
+      `,
+      outlinePrimary: `
+        bg-transparent
+        border-2
+        border-[var(--color-primary)]
+        text-[var(--color-primary)]
+        hover:bg-gray-100
+        hover:text-primary
         cursor-pointer
       `,
     };

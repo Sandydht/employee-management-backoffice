@@ -198,7 +198,7 @@ export class EmployeeEditPage implements OnInit {
   }
 
   goToEmployeeListPage(): void {
-    this.router.navigate(['/employees']);
+    this.router.navigate(['/employees'], { queryParamsHandling: 'preserve' });
   }
 
   submit(): void {

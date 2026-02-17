@@ -19,6 +19,7 @@
   >
     <div class="w-full h-auto p-4 max-w-[500px]">
       <app-input-search
+        [value]="search()"
         placeholder="Search by username, first name, or email..."
         (valueChange)="onSearchChange($event)"
       ></app-input-search>
@@ -29,6 +30,7 @@
         <ng-template #usernameTemplate let-employee>
           <a
             [routerLink]="`/employees/${employee.id}`"
+            [queryParamsHandling]="'preserve'"
             class="text-blue-500 cursor-pointer hover:underline"
           >
             {{ employee.username || '-' }}
