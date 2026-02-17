@@ -42,7 +42,11 @@
         </ng-template>
 
         <ng-template #salaryTemplate let-employee>
-          {{ employee.basicSalary | currency: 'IDR' : 'symbol' : '1.0-0' }}
+          {{ employee.basicSalary | rupiah: 'Rp' }}
+        </ng-template>
+
+        <ng-template #statusTemplate let-employee>
+          <app-status-badge [value]="employee.status"></app-status-badge>
         </ng-template>
 
         <ng-template #actionsTemplate let-employee>

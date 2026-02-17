@@ -19,7 +19,6 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
 import { EmployeeService } from '../../../../core/services/employee-service/employee-service';
 import { PaginationQuery } from '../../../../shared/models/pagination-query.model';
 import { PaginatedResult } from '../../../../shared/models/paginated-result.model';
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -28,6 +27,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import * as ConfirmaActions from '../../../../shared/components/confirmation-modal/store/confirm-modal.actions';
 import { Store } from '@ngrx/store';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
+import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge';
+import { RupiahPipe } from '../../../../shared/pipes/rupiah-pipe/rupiah-pipe-pipe';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-employee-list-page',
@@ -36,10 +38,11 @@ import * as SnackbarActions from '../../../../shared/components/snackbar/store/s
     ButtonComponent,
     PaginationComponent,
     DataTableComponent,
-    CurrencyPipe,
     FormsModule,
     DatePipe,
     RouterLink,
+    StatusBadgeComponent,
+    RupiahPipe,
   ],
   templateUrl: './employee-list-page.html',
   styleUrl: './employee-list-page.css',
@@ -55,6 +58,7 @@ export class EmployeeListPage implements OnInit {
   usernameTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('usernameTemplate');
   birthDateTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('birthDateTemplate');
   salaryTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('salaryTemplate');
+  statusTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('statusTemplate');
   actionsTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('actionsTemplate');
 
   paginationMeta = signal<PaginationMeta>({
@@ -108,6 +112,7 @@ export class EmployeeListPage implements OnInit {
       header: 'Status',
       sortKey: 'status',
       sortable: true,
+      template: this.statusTemplate(),
     },
     {
       key: 'group',

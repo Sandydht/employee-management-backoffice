@@ -23,7 +23,7 @@
               <div
                 class="w-full h-full bg-secondary-light rounded-xl flex items-center justify-center text-secondary-dark text-3xl font-bold"
               >
-                {{ employee()?.firstName?.[0] ?? '' }} {{ employee()?.lastName?.[0] ?? '' }}
+                {{ employee().firstName[0] || '' }} {{ employee().lastName[0] || '' }}
               </div>
             </div>
           </div>
@@ -31,26 +31,24 @@
 
         <div class="w-full h-auto pt-16 pb-8 px-6 text-center">
           <p class="text-xl font-bold text-primary-dark leading-tigh">
-            {{ employee()?.firstName ?? '' }} {{ employee()?.lastName ?? '' }}
+            {{ employee().firstName || '' }} {{ employee().lastName || '' }}
           </p>
-          <p class="text-tertiary font-medium">@{{ employee()?.username ?? '-' }}</p>
+          <p class="text-tertiary font-medium">@{{ employee().username || '-' }}</p>
 
-          <div
-            class="mt-4 inline-flex items-center px-4 py-1 rounded-full border border-success text-success text-xs font-bold uppercase tracking-widest"
-          >
-            <p>Status</p>
+          <div class="w-auto h-auto mt-4">
+            <app-status-badge [value]="employee().status || undefined"></app-status-badge>
           </div>
 
           <div class="mt-8 pt-8 border-t border-quaternary-light grid grid-cols-1 gap-4">
             <div class="text-left">
               <p class="text-[10px] uppercase font-bold text-quaternary tracking-wider">Group</p>
               <p class="text-sm font-bold text-primary">
-                {{ employee()?.group ?? '-' | toTitleCase }}
+                {{ employee().group || '-' | toTitleCase }}
               </p>
             </div>
             <div class="text-left">
               <p class="text-[10px] uppercase font-bold text-quaternary tracking-wider">ID</p>
-              <p class="text-sm font-bold text-primary">{{ employee()?.id ?? '-' }}</p>
+              <p class="text-sm font-bold text-primary">{{ employee().id || '-' }}</p>
             </div>
           </div>
         </div>
@@ -63,7 +61,7 @@
           Current Basic Salary
         </p>
         <p class="text-2xl font-bold text-secondary">
-          {{ employee()?.basicSalary | currency: 'IDR' : 'symbol' : '1.2-2' : 'id-ID' }}
+          {{ employee().basicSalary | rupiah: 'Rp' }}
         </p>
       </div>
     </div>
@@ -91,7 +89,7 @@
             </div>
             <div class="w-full h-auto">
               <p class="text-primary-dark font-semibold pb-2 border-b border-quaternary-light">
-                {{ employee()?.firstName ?? '' }} {{ employee()?.lastName ?? '' }}
+                {{ employee().firstName || '' }} {{ employee().lastName || '' }}
               </p>
             </div>
           </div>
@@ -105,7 +103,7 @@
             </div>
             <div class="w-full h-auto">
               <p class="text-primary-dark font-semibold pb-2 border-b border-quaternary-light">
-                {{ employee()?.email ?? '-' }}
+                {{ employee().email || '-' }}
               </p>
             </div>
           </div>
@@ -119,7 +117,7 @@
             </div>
             <div class="w-full h-auto">
               <p class="text-primary-dark font-semibold pb-2 border-b border-quaternary-light">
-                {{ employee()?.birthDate ?? '' | date: 'longDate' }}
+                {{ employee().birthDate || '' | date: 'longDate' }}
               </p>
             </div>
           </div>
@@ -133,7 +131,7 @@
             </div>
             <div class="w-full h-auto">
               <p class="text-primary-dark font-semibold pb-2 border-b border-quaternary-light">
-                {{ (employee()?.updatedAt | date: 'longDate') ?? 'Not updated' }}
+                {{ (employee().updatedAt | date: 'longDate') || 'Not updated' }}
               </p>
             </div>
           </div>
@@ -151,7 +149,7 @@
           >
             <div class="w-full h-auto border-l-[5px] border-secondary p-4">
               <p class="text-primary-dark leading-relaxed italic">
-                {{ employee()?.description ?? '' }}
+                {{ employee().description || '' }}
               </p>
             </div>
           </div>
@@ -161,10 +159,10 @@
           class="w-full h-auto flex items-center justify-between gap-4 uppercase tracking-tighter font-bold text-[11px]"
         >
           <div class="w-auto h-auto">
-            <p class="text-quaternary">Created: {{ employee()?.createdAt | date: 'longDate' }}</p>
+            <p class="text-quaternary">Created: {{ employee().createdAt | date: 'longDate' }}</p>
           </div>
 
-          @if (employee()?.deletedAt) {
+          @if (employee().deletedAt) {
             <div class="w-auto h-auto flex items-center justify-end gap-1">
               <div
                 class="w-full h-full aspect-square min-w-[8px] max-w-[8px] min-h-[8px] max-h-[8px] bg-danger rounded-full animate-pulse"

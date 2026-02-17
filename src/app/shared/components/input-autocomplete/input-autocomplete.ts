@@ -184,10 +184,31 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
   inputClasses = computed(() => {
     const base = 'w-full px-4 py-2 rounded-lg border text-sm outline-none transition';
 
-    if (this.isDisabled()) return `${base} bg-gray-100 text-gray-400 cursor-not-allowed`;
-    if (this.error()) return `${base} border-red-400 focus:ring-red-200`;
+    const normal = `
+      border-[var(--color-quaternary)]
+      focus:border-[var(--color-primary)]
+      focus:ring-2
+      focus:ring-[var(--color-primary-light)]
+    `;
 
-    return `${base} border-gray-300 focus:ring-2 focus:ring-blue-200`;
+    const errorStyle = `
+      border-[var(--color-danger)]
+      focus:border-[var(--color-danger-dark)]
+      focus:ring-2
+      focus:ring-[var(--color-danger-light)]
+    `;
+
+    const disabledStyle = `
+      bg-[var(--color-disabled-bg)]
+      text-[var(--color-disabled-text)]
+      cursor-not-allowed
+      opacity-70
+    `;
+
+    if (this.isDisabled()) return `${base} ${disabledStyle}`;
+    if (this.error()) return `${base} ${errorStyle}`;
+
+    return `${base} ${normal}`;
   });
 
   iconClasses = computed(() => {

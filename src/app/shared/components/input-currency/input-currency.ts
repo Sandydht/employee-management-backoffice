@@ -4,14 +4,15 @@ import {
   ViewChild,
   computed,
   forwardRef,
+  inject,
   input,
   output,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { RupiahPipe } from '../../pipes/rupiah-pipe/rupiah-pipe-pipe';
 
 @Component({
   selector: 'app-input-currency',
-  standalone: true,
   templateUrl: './input-currency.html',
   styleUrl: './input-currency.css',
   providers: [
@@ -20,9 +21,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       useExisting: forwardRef(() => InputCurrencyComponent),
       multi: true,
     },
+    RupiahPipe,
   ],
 })
 export class InputCurrencyComponent implements ControlValueAccessor {
+  private readonly rupiahPipe = inject(RupiahPipe);
+
   id = input<string>('');
   label = input<string>('');
   placeholder = input<string>('');
@@ -37,10 +41,6 @@ export class InputCurrencyComponent implements ControlValueAccessor {
   private onChange: (value: number | null) => void = () => {};
   private onTouched: () => void = () => {};
 
-  private format(value: number): string {
-    return `Rp ${new Intl.NumberFormat('id-ID').format(value)}`;
-  }
-
   private parse(value: string): number | null {
     const raw = value.replace(/\D/g, '');
     return raw.length > 0 ? Number(raw) : null;
@@ -54,7 +54,7 @@ export class InputCurrencyComponent implements ControlValueAccessor {
       return;
     }
 
-    inputEl.value = this.format(value);
+    inputEl.value = this.rupiahPipe.transform(value);
   }
 
   registerOnChange(fn: (value: number | null) => void): void {
@@ -75,7 +75,7 @@ export class InputCurrencyComponent implements ControlValueAccessor {
     const numberValue = this.parse(inputEl.value);
 
     if (numberValue !== null) {
-      inputEl.value = this.format(numberValue);
+      inputEl.value = this.rupiahPipe.transform(numberValue);
     } else {
       inputEl.value = '';
     }

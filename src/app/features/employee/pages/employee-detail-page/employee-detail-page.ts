@@ -8,10 +8,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from '../../../../shared/pipes/to-title-case-pipe/to-title-case-pipe';
 import { Store } from '@ngrx/store';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
+import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge';
+import { RupiahPipe } from '../../../../shared/pipes/rupiah-pipe/rupiah-pipe-pipe';
 
 @Component({
   selector: 'app-employee-detail-page',
-  imports: [CommonModule, ButtonComponent, ToTitleCasePipe],
+  imports: [CommonModule, ButtonComponent, ToTitleCasePipe, StatusBadgeComponent, RupiahPipe],
   providers: [DatePipe],
   templateUrl: './employee-detail-page.html',
   styleUrl: './employee-detail-page.css',
@@ -24,7 +26,21 @@ export class EmployeeDetailPage implements OnInit {
   private readonly store = inject(Store);
 
   employeeId = signal<string | null>(null);
-  employee = signal<Employee | null>(null);
+  employee = signal<Employee>({
+    id: '',
+    username: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    birthDate: '',
+    basicSalary: 0,
+    status: 'ACTIVE',
+    group: '',
+    description: '',
+    createdAt: '',
+    updatedAt: '',
+    deletedAt: '',
+  });
 
   ngOnInit(): void {
     this.employeeId.set(this.route.snapshot.paramMap.get('id') || null);
