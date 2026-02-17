@@ -45,12 +45,29 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
   isOpenDropdown = signal(false);
 
   dropdownPosition = signal<'bottom' | 'top'>('bottom');
+  disabledForm = signal(false);
 
   @ViewChild('triggerInput')
   triggerInput!: ElementRef<HTMLInputElement>;
 
   private debounceTimer?: ReturnType<typeof setTimeout>;
-  private currentValue = '';
+  currentValue = signal<string>('');
+
+  constructor() {
+    effect(() => {
+      const value = this.currentValue();
+      const opts = this.options();
+
+      if (!value || opts.length === 0) return;
+
+      const selected = opts.find((o) => o.key === value);
+
+      if (selected) {
+        this.searchText.set(selected.label);
+        this.selectedKey.set(selected.key);
+      }
+    });
+  }
 
   filteredOptions = computed(() => {
     if (!this.debouncedText().trim()) return this.options();
@@ -64,8 +81,12 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
   private onTouched: () => void = () => {};
 
   writeValue(value: string): void {
-    this.currentValue = value;
-    this.syncSelected();
+    this.currentValue.set(value);
+
+    if (!value) {
+      this.searchText.set('');
+      this.selectedKey.set('');
+    }
   }
 
   registerOnChange(fn: (val: string) => void): void {
@@ -76,20 +97,11 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
     this.onTouched = fn;
   }
 
-  constructor() {
-    effect(() => {
-      this.options();
-      this.syncSelected();
-    });
-  }
+  setDisabledState(isDisabled: boolean): void {
+    this.disabledForm.set(isDisabled);
 
-  private syncSelected() {
-    const selected = this.options().find((opt) => opt.key === this.currentValue);
-
-    if (selected) {
-      this.searchText.set(selected.label);
-      this.debouncedText.set(selected.label);
-      this.selectedKey.set(selected.key);
+    if (isDisabled) {
+      this.closeDropdown();
     }
   }
 
@@ -98,6 +110,11 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
 
     this.searchText.set(value);
     this.isOpenDropdown.set(true);
+
+    this.currentValue.set('');
+    this.selectedKey.set('');
+
+    this.onChange('');
 
     clearTimeout(this.debounceTimer);
 
@@ -110,7 +127,7 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
     this.searchText.set(option.label);
     this.selectedKey.set(option.key);
 
-    this.currentValue = option.key;
+    this.currentValue.set(option.key);
 
     this.onChange(option.key);
     this.onTouched();
@@ -121,7 +138,7 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
   }
 
   openDropdown() {
-    if (this.disabled()) return;
+    if (this.isDisabled()) return;
 
     this.isOpenDropdown.set(true);
     setTimeout(() => this.calculateDropdownPosition());
@@ -157,11 +174,17 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
     window.removeEventListener('resize', this.resizeHandler);
   }
 
+  handleBlur(): void {
+    setTimeout(() => {
+      this.onTouched();
+      this.closeDropdown();
+    }, 150);
+  }
+
   inputClasses = computed(() => {
     const base = 'w-full px-4 py-2 rounded-lg border text-sm outline-none transition';
 
-    if (this.disabled()) return `${base} bg-gray-100 text-gray-400 cursor-not-allowed`;
-
+    if (this.isDisabled()) return `${base} bg-gray-100 text-gray-400 cursor-not-allowed`;
     if (this.error()) return `${base} border-red-400 focus:ring-red-200`;
 
     return `${base} border-gray-300 focus:ring-2 focus:ring-blue-200`;
@@ -173,4 +196,6 @@ export class InputAutocompleteComponent implements ControlValueAccessor, OnDestr
       ${this.isOpenDropdown() ? 'rotate-180' : ''}
     `;
   });
+
+  isDisabled = computed(() => this.disabled() || this.disabledForm());
 }

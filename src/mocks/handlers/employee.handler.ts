@@ -177,7 +177,13 @@ export const employeeHandlers = [
       return HttpResponse.json({ message: 'Employee not found' }, { status: 404 });
     }
 
-    await db.employees.delete(String(id));
+    const now = new Date().toISOString();
+    const updatedBody: Partial<Employee> = {
+      ...employee,
+      status: employee.status as EmployeeStatus,
+      deletedAt: now,
+    };
+    await db.employees.update(String(id), updatedBody);
     return HttpResponse.json(employee, { status: 200 });
   }),
 

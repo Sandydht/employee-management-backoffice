@@ -12,12 +12,12 @@
       type="text"
       autocomplete="off"
       [placeholder]="placeholder()"
-      [disabled]="disabled()"
+      [disabled]="isDisabled()"
       [value]="searchText()"
       [class]="inputClasses()"
       (input)="handleInput($event)"
       (focus)="openDropdown()"
-      (blur)="closeDropdown()"
+      (blur)="handleBlur()"
     />
 
     <img
@@ -43,7 +43,7 @@
                 'bg-primary text-white': selectedKey() === option.key,
                 'hover:bg-gray-100': selectedKey() !== option.key,
               }"
-              (mousedown)="selectOption(option)"
+              (click)="selectOption(option)"
             >
               {{ option.label }}
             </button>

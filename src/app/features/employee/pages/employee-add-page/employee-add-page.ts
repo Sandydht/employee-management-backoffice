@@ -14,6 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Employee } from '../../models/employee.model';
 import { DropdownDataOptions } from '../../../../shared/models/dropdown-data-options.model';
 import { InputAutocompleteComponent } from '../../../../shared/components/input-autocomplete/input-autocomplete';
+import { DateYMDPipe } from '../../../../shared/pipes/date-ymd-pipe/date-ymd-pipe';
 
 @Component({
   selector: 'app-employee-add-page',
@@ -26,6 +27,7 @@ import { InputAutocompleteComponent } from '../../../../shared/components/input-
     TextareaComponent,
     InputAutocompleteComponent,
   ],
+  providers: [DateYMDPipe],
   templateUrl: './employee-add-page.html',
   styleUrl: './employee-add-page.css',
 })
@@ -61,46 +63,16 @@ export class EmployeeAddPage {
   ];
 
   groupDataOptions: DropdownDataOptions[] = [
-    {
-      key: 'product_management',
-      label: 'Product Management',
-    },
-    {
-      key: 'legal',
-      label: 'Legal',
-    },
-    {
-      key: 'accounting',
-      label: 'Accounting',
-    },
-    {
-      key: 'engineering',
-      label: 'Engineering',
-    },
-    {
-      key: 'human_resources',
-      label: 'Human Resources',
-    },
-    {
-      key: 'marketing',
-      label: 'Marketing',
-    },
-    {
-      key: 'accounting',
-      label: 'Accounting',
-    },
-    {
-      key: 'research_and_development',
-      label: 'Research and Development',
-    },
-    {
-      key: 'sales',
-      label: 'Sales',
-    },
-    {
-      key: 'marketing',
-      label: 'Marketing',
-    },
+    { key: 'product_management', label: 'Product Management' },
+    { key: 'legal', label: 'Legal' },
+    { key: 'accounting', label: 'Accounting' },
+    { key: 'engineering', label: 'Engineering' },
+    { key: 'human_resources', label: 'Human Resources' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'research_and_development', label: 'Research and Development' },
+    { key: 'sales', label: 'Sales' },
+    { key: 'training', label: 'Training' },
+    { key: 'services', label: 'Services' },
   ];
 
   get usernameError(): string {

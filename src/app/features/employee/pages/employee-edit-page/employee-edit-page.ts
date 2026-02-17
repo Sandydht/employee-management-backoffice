@@ -15,6 +15,7 @@ import { DateYMDPipe } from '../../../../shared/pipes/date-ymd-pipe/date-ymd-pip
 import { AddUpdateEmployeeRequest } from '../../models/add-employee-request.model';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
 import { Store } from '@ngrx/store';
+import { ToTitleCasePipe } from '../../../../shared/pipes/to-title-case-pipe/to-title-case-pipe';
 
 @Component({
   selector: 'app-employee-edit-page',
@@ -27,7 +28,7 @@ import { Store } from '@ngrx/store';
     InputDateComponent,
     InputAutocompleteComponent,
   ],
-  providers: [DateYMDPipe],
+  providers: [DateYMDPipe, ToTitleCasePipe],
   templateUrl: './employee-edit-page.html',
   styleUrl: './employee-edit-page.css',
 })
@@ -39,6 +40,7 @@ export class EmployeeEditPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly dateYMDPipe = inject(DateYMDPipe);
   private readonly store = inject(Store);
+  private readonly toTitleCase = inject(ToTitleCasePipe);
 
   form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
@@ -64,46 +66,16 @@ export class EmployeeEditPage implements OnInit {
   ];
 
   groupDataOptions: DropdownDataOptions[] = [
-    {
-      key: 'product_management',
-      label: 'Product Management',
-    },
-    {
-      key: 'legal',
-      label: 'Legal',
-    },
-    {
-      key: 'accounting',
-      label: 'Accounting',
-    },
-    {
-      key: 'engineering',
-      label: 'Engineering',
-    },
-    {
-      key: 'human_resources',
-      label: 'Human Resources',
-    },
-    {
-      key: 'marketing',
-      label: 'Marketing',
-    },
-    {
-      key: 'accounting',
-      label: 'Accounting',
-    },
-    {
-      key: 'research_and_development',
-      label: 'Research and Development',
-    },
-    {
-      key: 'sales',
-      label: 'Sales',
-    },
-    {
-      key: 'marketing',
-      label: 'Marketing',
-    },
+    { key: 'product_management', label: 'Product Management' },
+    { key: 'legal', label: 'Legal' },
+    { key: 'accounting', label: 'Accounting' },
+    { key: 'engineering', label: 'Engineering' },
+    { key: 'human_resources', label: 'Human Resources' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'research_and_development', label: 'Research and Development' },
+    { key: 'sales', label: 'Sales' },
+    { key: 'training', label: 'Training' },
+    { key: 'services', label: 'Services' },
   ];
 
   employeeId = signal<string | null>(null);
@@ -204,6 +176,18 @@ export class EmployeeEditPage implements OnInit {
       .subscribe({
         next: (response: Employee) => {
           if (response.id) {
+            const groupExists = this.groupDataOptions.some((opt) => opt.key === response.group);
+
+            if (!groupExists && response.group) {
+              this.groupDataOptions = [
+                ...this.groupDataOptions,
+                {
+                  key: response.group,
+                  label: `${this.toTitleCase.transform(response.group)} (Deprecated)`,
+                },
+              ];
+            }
+
             this.form.patchValue({
               ...response,
               birthDate: this.dateYMDPipe.transform(new Date(response.birthDate)),
@@ -218,6 +202,11 @@ export class EmployeeEditPage implements OnInit {
   }
 
   submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
     this.loading.set(true);
     const payload: AddUpdateEmployeeRequest = {
       username: this.form.controls.username.value,
