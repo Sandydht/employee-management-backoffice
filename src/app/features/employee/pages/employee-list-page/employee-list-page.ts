@@ -24,7 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import * as ConfirmaActions from '../../../../shared/components/confirmation-modal/store/confirm-modal.actions';
 import { Store } from '@ngrx/store';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
@@ -39,6 +39,7 @@ import * as SnackbarActions from '../../../../shared/components/snackbar/store/s
     CurrencyPipe,
     FormsModule,
     DatePipe,
+    RouterLink,
   ],
   templateUrl: './employee-list-page.html',
   styleUrl: './employee-list-page.css',
@@ -50,6 +51,7 @@ export class EmployeeListPage implements OnInit {
   private readonly search$ = new Subject<string>();
   private readonly store = inject(Store);
 
+  usernameTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('usernameTemplate');
   birthDateTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('birthDateTemplate');
   salaryTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('salaryTemplate');
   actionsTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('actionsTemplate');
@@ -72,6 +74,7 @@ export class EmployeeListPage implements OnInit {
       header: 'Username',
       sortKey: 'username',
       sortable: true,
+      template: this.usernameTemplate(),
     },
     {
       key: 'firstName',
