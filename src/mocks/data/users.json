@@ -1,0 +1,22 @@
+[
+  {
+    "id": "760d3e1f-5321-443c-beca-19cb9fd9ff9d",
+    "username": "user1",
+    "firstName": "User",
+    "lastName": "1",
+    "password": "password123",
+    "createdAt": "2025-03-10T13:02:05Z",
+    "updatedAt": null,
+    "deletedAt": null
+  },
+  {
+    "id": "24a77b37-dd23-4dc9-95e6-42ad792ba0e9",
+    "username": "user2",
+    "firstName": "User",
+    "lastName": "1",
+    "password": "password123",
+    "createdAt": "2026-01-18T08:45:50Z",
+    "updatedAt": null,
+    "deletedAt": null
+  }
+]

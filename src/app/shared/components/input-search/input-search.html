@@ -1,0 +1,18 @@
+<div class="w-full h-auto relative">
+  <img
+    src="assets/images/svg/search_24px_quaternary.svg"
+    alt="Seach icon"
+    [class]="searchIconClasses()"
+  />
+
+  <input
+    [id]="id()"
+    type="search"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [class]="inputClasses()"
+    [value]="internalValue()"
+    (input)="handleInput($event)"
+    (blur)="handleBlur()"
+  />
+</div>

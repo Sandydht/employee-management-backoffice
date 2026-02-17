@@ -1,0 +1,84 @@
+<div class="w-full h-auto flex flex-col items-start justify-start gap-4 p-[25px] lg:px-[40px]">
+  <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+    <p class="text-left text-[16px] leading-[24px] lg:text-[22px] lg:leading-7 font-bold">
+      Employee List
+    </p>
+    <p class="text-left text-[14px] leading-[20px] lg:text-[16px] lg:leading-6 line-clamp-2">
+      View, search, and manage employee records with sorting and pagination support.
+    </p>
+  </div>
+
+  <div class="w-full h-auto">
+    <div class="w-full h-auto lg:max-w-[20%]">
+      <app-button type="button" (click)="goToAddPage()"> Add Employee </app-button>
+    </div>
+  </div>
+
+  <div
+    class="w-full h-auto bg-white rounded-lg flex flex-col items-start justify-start border border-gray-100 shadow-md"
+  >
+    <div class="w-full h-auto p-4 max-w-[500px]">
+      <app-input-search
+        [value]="search()"
+        placeholder="Search by username, first name, or email..."
+        (valueChange)="onSearchChange($event)"
+      ></app-input-search>
+    </div>
+
+    <div class="w-full h-auto flex flex-col items-start justify-start">
+      <div class="w-full h-auto max-h-[610px] border-b-2 border-gray-100 overflow-x-auto">
+        <ng-template #usernameTemplate let-employee>
+          <a
+            [routerLink]="`/employees/${employee.id}`"
+            [queryParamsHandling]="'preserve'"
+            class="text-blue-500 cursor-pointer hover:underline"
+          >
+            {{ employee.username || '-' }}
+          </a>
+        </ng-template>
+
+        <ng-template #birthDateTemplate let-employee>
+          {{ employee.birthDate | date: 'dd MMM yyyy' }}
+        </ng-template>
+
+        <ng-template #salaryTemplate let-employee>
+          {{ employee.basicSalary | rupiah: 'Rp' }}
+        </ng-template>
+
+        <ng-template #statusTemplate let-employee>
+          <app-status-badge [value]="employee.status"></app-status-badge>
+        </ng-template>
+
+        <ng-template #actionsTemplate let-employee>
+          <div class="flex gap-2">
+            <app-button type="button" variant="secondary" (click)="goToEditPage(employee.id)">
+              Edit
+            </app-button>
+            <app-button
+              type="button"
+              variant="danger"
+              (click)="openConfirmationModalBoxDeleteEmployee(employee.id)"
+            >
+              Delete
+            </app-button>
+          </div>
+        </ng-template>
+
+        <app-data-table
+          [columns]="columns()"
+          [sort]="sort()"
+          [datas]="employees()"
+          (sortChange)="onSortChange($event)"
+        ></app-data-table>
+      </div>
+
+      <div class="w-full h-auto p-4 flex items-center justify-center lg:justify-end">
+        <app-pagination
+          [paginationMeta]="paginationMeta()"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>

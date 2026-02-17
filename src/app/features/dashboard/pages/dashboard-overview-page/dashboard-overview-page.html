@@ -1,0 +1,85 @@
+<div class="w-full h-auto flex flex-col items-start justify-start gap-4 p-[25px] lg:px-[40px]">
+  <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+    <p class="text-left text-[16px] leading-[24px] lg:text-[22px] lg:leading-7 font-bold">
+      Dashboard Overview
+    </p>
+    <p class="text-left text-[14px] leading-[20px] lg:text-[16px] lg:leading-6 line-clamp-2">
+      Get a quick snapshot of employee status and recent updates.
+    </p>
+  </div>
+
+  <div class="w-full h-auto flex flex-col items-start justify-start gap-4">
+    @if (!fetchTotalEmployeesLoading()) {
+      <div class="w-full h-auto flex flex-col md:flex-row items-start justify-start gap-2">
+        <div
+          class="w-full h-auto rounded-lg bg-white border border-gray-100 p-4 shadow-md flex items-center justify-center gap-4"
+        >
+          <div class="w-auto h-full aspect-square p-2 rounded-lg bg-blue-300">
+            <img
+              src="assets/images/svg/perm_identity_24px_white.svg"
+              alt="Perm identity icon"
+              class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px]"
+            />
+          </div>
+
+          <div class="w-auto h-auto flex flex-col items-start justify-start gap-1">
+            <p class="text-left text-[14px] leading-[20px]">Total Employees</p>
+            <p class="text-left text-[26px] leading-[24px] font-semibold">
+              {{ totalEmployeesData().totalEmployees }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="w-full h-auto rounded-lg bg-white border border-gray-100 p-4 shadow-md flex items-center justify-center gap-4"
+        >
+          <div class="w-auto h-full aspect-square p-2 rounded-lg bg-green-300">
+            <img
+              src="assets/images/svg/done_24px_white.svg"
+              alt="Done icon"
+              class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px]"
+            />
+          </div>
+
+          <div class="w-auto h-auto flex flex-col items-start justify-start gap-1">
+            <p class="text-left text-[14px] leading-[20px]">Active Employees</p>
+            <p class="text-left text-[26px] leading-[24px] font-semibold">
+              {{ totalEmployeesData().activeEmployees }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="w-full h-auto rounded-lg bg-white border border-gray-100 p-4 shadow-md flex items-center justify-center gap-4"
+        >
+          <div class="w-auto h-auto aspect-square p-2 rounded-lg bg-red-300">
+            <img
+              src="assets/images/svg/info_24px_white.svg"
+              alt="Info icon"
+              class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px]"
+            />
+          </div>
+
+          <div class="w-auto h-auto flex flex-col items-start justify-start gap-1">
+            <p class="text-left text-[14px] leading-[20px]">Inactive Employees</p>
+            <p class="text-left text-[26px] leading-[24px] font-semibold">
+              {{ totalEmployeesData().inactiveEmployees }}
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="w-full h-auto flex flex-col md:flex-row items-start justify-start gap-2">
+      @if (!fetchEmployeeListLoading()) {
+        <app-employee-status-chart [employees]="employees()"></app-employee-status-chart>
+      }
+
+      @if (!fetchRecentEmployeeListLoading()) {
+        <div class="w-full h-auto">
+          <app-recent-employees-table [employees]="recentEmployees()"></app-recent-employees-table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

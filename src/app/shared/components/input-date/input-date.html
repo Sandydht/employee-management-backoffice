@@ -1,0 +1,157 @@
+<div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+  @if (label()) {
+    <label [htmlFor]="id()" class="text-sm font-medium text-[var(--color-primary-dark)]">
+      {{ label() }}
+    </label>
+  }
+
+  <div class="w-full h-auto relative">
+    <button
+      #triggerBtn
+      [id]="id()"
+      type="button"
+      [class]="inputClasses()"
+      [disabled]="disabled()"
+      (click)="toggleDropdown()"
+    >
+      {{ selectedDate() ? (selectedDate() | date: 'dd MMM yyyy') : placeholder() }}
+    </button>
+
+    @if (openDropdown()) {
+      <div
+        class="w-auto h-auto absolute left-0 sm:w-auto sm:max-w-sm bg-white border border-gray-100 shadow-md z-30 rounded-lg overflow-hidden flex flex-col items-start justify-start"
+        [ngClass]="{
+          'top-full mt-2': dropdownPosition() === 'bottom',
+          'bottom-full mb-2': dropdownPosition() === 'top',
+        }"
+        appClickOutside
+        (clickOutside)="closeDropdown()"
+      >
+        <div
+          class="w-full h-auto p-2 border-b-2 border-gray-100 flex items-center justify-between gap-2"
+        >
+          <button
+            type="button"
+            (click)="prevMonth()"
+            [disabled]="!canGoPrev()"
+            class="w-full h-full max-w-[30px] max-h-[30px] md:max-w-[40px] md:max-h-[40px] aspect-square p-2 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <img
+              src="assets/images/svg/chevron_left_24px_primary.svg"
+              alt="Previous icon"
+              class="w-full h-full min-w-[20px] max-w-[20px] min-h-[20px] max-h-[20px] md:min-w-[24px] md:max-w-[24px] md:min-h-[24px] md:max-h-[24px]"
+            />
+          </button>
+
+          <div class="w-full h-auto flex items-center justify-center gap-2">
+            <div class="relative w-fit">
+              <select
+                class="px-2 pr-7 py-1 cursor-pointer appearance-none rounded-md border border-gray-200 text-[11px] leading-[16px] md:text-[12px] font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+                [value]="currentMonth()"
+                (change)="onMonthChange($event)"
+              >
+                @for (month of months; track $index) {
+                  <option
+                    [value]="$index"
+                    [selected]="$index === currentMonth()"
+                    [disabled]="isMonthDisabled($index)"
+                  >
+                    {{ month }}
+                  </option>
+                }
+              </select>
+
+              <span
+                class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+              >
+                <img
+                  src="assets/images/svg/expand_more_24px_quaternary.svg"
+                  alt="Expand more icon"
+                  class="w-full h-full aspect-square max-w-[18px] max-h-[18px]"
+                />
+              </span>
+            </div>
+
+            <div class="relative w-fit group">
+              <select
+                class="px-2 pr-7 py-1 cursor-pointer appearance-none rounded-md border border-gray-200 text-[11px] leading-[16px] md:text-[12px] font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary-light)]"
+                [value]="currentYear()"
+                (change)="onYearChange($event)"
+              >
+                @for (year of years(); track $index) {
+                  <option
+                    [value]="year"
+                    [selected]="year === currentYear()"
+                    [disabled]="isYearDisabled(year)"
+                  >
+                    {{ year }}
+                  </option>
+                }
+              </select>
+
+              <span
+                class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+              >
+                <img
+                  src="assets/images/svg/expand_more_24px_quaternary.svg"
+                  alt="Expand more icon"
+                  class="w-full h-full aspect-square max-w-[18px] max-h-[18px]"
+                />
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="nextMonth()"
+            [disabled]="!canGoNext()"
+            class="w-full h-full max-w-[30px] max-h-[30px] md:max-w-[40px] md:max-h-[40px] aspect-square p-2 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <img
+              src="assets/images/svg/chevron_right_24px_primary.svg"
+              alt="Next icon"
+              class="w-full h-full min-w-[20px] max-w-[20px] min-h-[20px] max-h-[20px] md:min-w-[24px] md:max-w-[24px] md:min-h-[24px] md:max-h-[24px]"
+            />
+          </button>
+        </div>
+
+        <div class="w-auto h-auto p-3 grid grid-cols-7 gap-2">
+          @for (weekDay of weekdays; track $index) {
+            <div class="w-full h-full aspect-square max-w-[32px] max-h-[32px]">
+              <p class="text-center text-[11px] leading-[16px] font-semibold">
+                {{ weekDay }}
+              </p>
+            </div>
+          }
+
+          @for (item of days(); track $index) {
+            <button
+              type="button"
+              (click)="selectDate(item)"
+              [disabled]="isDisabledDate(item)"
+              class="w-full h-full aspect-square max-w-[32px] max-h-[32px] p-2 cursor-pointer rounded-full text-[11px] leading-[16px] flex items-center justify-center"
+              [ngClass]="{
+                'opacity-30 pointer-events-none cursor-not-allowed': isDisabledDate(item),
+                'bg-[var(--color-primary)] text-white font-semibold':
+                  isSelected(item) && !isDisabledDate(item),
+                'border border-[var(--color-primary)]':
+                  isToday(item) && !isSelected(item) && !isDisabledDate(item),
+                'text-gray-400': item.monthOffset !== 0 && !isDisabledDate(item),
+                'text-gray-900 hover:bg-gray-100 cursor-pointer':
+                  item.monthOffset === 0 && !isSelected(item) && !isDisabledDate(item),
+              }"
+            >
+              {{ item.day }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="text-xs text-[var(--color-danger)] font-medium">
+      {{ error() }}
+    </p>
+  }
+</div>

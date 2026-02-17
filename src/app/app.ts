@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ConfirmationModalComponent } from './shared/components/confirmation-modal/confirmation-modal';
+import { SnackbarComponent } from './shared/components/snackbar/snackbar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ConfirmationModalComponent, SnackbarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {
-  protected readonly title = signal('employee-management-backoffice');
-}
+export class App {}

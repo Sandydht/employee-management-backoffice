@@ -1,0 +1,17 @@
+<div
+  class="w-auto h-auto px-2 py-1 rounded-full border-2"
+  [ngClass]="{
+    'border-green-500 bg-green-100': value() === 'ACTIVE',
+    'border-red-500 bg-red-100': value() === 'INACTIVE',
+  }"
+>
+  <p
+    class="text-center text-[12px] leading-[16px] font-semibold"
+    [ngClass]="{
+      'text-green-500': value() === 'ACTIVE',
+      'text-red-500': value() === 'INACTIVE',
+    }"
+  >
+    {{ value() }}
+  </p>
+</div>

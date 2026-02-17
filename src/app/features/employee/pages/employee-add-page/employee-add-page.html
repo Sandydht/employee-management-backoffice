@@ -1,0 +1,123 @@
+<div class="w-full h-auto flex flex-col items-start justify-start gap-4 p-[25px] lg:px-[40px]">
+  <div class="w-full h-auto flex flex-col items-start justify-start gap-1">
+    <p class="text-left text-[16px] leading-[24px] lg:text-[22px] lg:leading-7 font-bold">
+      Add New Employee
+    </p>
+    <p class="text-left text-[14px] leading-[20px] lg:text-[16px] lg:leading-6 line-clamp-2">
+      Fill in the employee details below to create a new record in the system.
+    </p>
+  </div>
+
+  <div class="w-full h-auto bg-white rounded-lg border border-gray-100 shadow-md p-4">
+    <form
+      class="w-full h-auto flex flex-col items-start justify-start gap-4"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+    >
+      <div class="w-full h-auto">
+        <app-input
+          id="username"
+          label="Username"
+          placeholder="Username..."
+          formControlName="username"
+          [error]="usernameError"
+        ></app-input>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input
+          id="firstName"
+          label="First Name"
+          placeholder="First Name..."
+          formControlName="firstName"
+          [error]="firstNameError"
+        ></app-input>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input
+          id="lastName"
+          label="Last Name"
+          placeholder="Last Name..."
+          formControlName="lastName"
+          [error]="lastNameError"
+        ></app-input>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input
+          id="email"
+          label="Email"
+          placeholder="Email..."
+          formControlName="email"
+          [error]="emailError"
+        ></app-input>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-date
+          id="birthDate"
+          label="Birth Date"
+          placeholder="Choose birth date..."
+          formControlName="birthDate"
+          [maxDate]="maxDate"
+          [error]="birthDateError"
+        ></app-input-date>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-currency
+          id="basicSalary"
+          label="Salary"
+          placeholder="Salary..."
+          formControlName="basicSalary"
+          [error]="basicSalaryError"
+        ></app-input-currency>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-autocomplete
+          id="status"
+          label="Status"
+          placeholder="Choose status..."
+          [options]="statusDataOptions"
+          formControlName="status"
+          [error]="statusError"
+        ></app-input-autocomplete>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-autocomplete
+          id="group"
+          label="Group"
+          placeholder="Choose group..."
+          [options]="groupDataOptions"
+          formControlName="group"
+          [error]="groupError"
+        ></app-input-autocomplete>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-textarea
+          id="description"
+          label="Description"
+          placeholder="Description..."
+          formControlName="description"
+          [error]="descriptionError"
+        ></app-textarea>
+      </div>
+
+      <div class="w-full h-auto flex items-center justify-between gap-2">
+        <div class="w-full h-auto">
+          <app-button type="button" variant="outlinePrimary" (click)="goToEmployeeListPage()">
+            Cancel
+          </app-button>
+        </div>
+
+        <div class="w-full h-auto">
+          <app-button type="submit" [disabled]="form.invalid || loading()"> Save </app-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

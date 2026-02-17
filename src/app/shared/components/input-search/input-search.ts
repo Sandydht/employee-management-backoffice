@@ -1,0 +1,88 @@
+import { Component, forwardRef, input, computed, output, signal, effect } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+@Component({
+  selector: 'app-input-search',
+  imports: [],
+  templateUrl: './input-search.html',
+  styleUrl: './input-search.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputSearchComponent),
+      multi: true,
+    },
+  ],
+})
+export class InputSearchComponent implements ControlValueAccessor {
+  id = input<string>('');
+  placeholder = input<string>('');
+  disabled = input<boolean>(false);
+  value = input<string>('');
+
+  valueChange = output<string>();
+
+  internalValue = signal<string>('');
+
+  constructor() {
+    effect(() => {
+      this.internalValue.set(this.value() ?? '');
+    });
+  }
+
+  private onChange: (value: string) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  writeValue(value: string): void {
+    this.internalValue.set(value ?? '');
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  handleInput(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    this.internalValue.set(val);
+    this.onChange(val);
+    this.valueChange.emit(val);
+  }
+
+  handleBlur(): void {
+    this.onTouched();
+  }
+
+  inputClasses = computed(() => {
+    const base = 'w-full pr-4 py-2 pl-12 rounded-lg border text-sm outline-none transition';
+
+    const normal = `
+      border-[var(--color-quaternary)]
+      focus:border-[var(--color-primary)]
+      focus:ring-2
+      focus:ring-[var(--color-primary-light)]
+    `;
+
+    const disabledStyle = `
+      bg-[var(--color-disabled-bg)]
+      text-[var(--color-disabled-text)]
+      cursor-not-allowed
+      opacity-70
+    `;
+
+    if (this.disabled()) return `${base} ${disabledStyle}`;
+
+    return `${base} ${normal}`;
+  });
+
+  searchIconClasses = computed(() => {
+    return `
+      absolute left-4 top-1/2 -translate-y-1/2
+      w-6 h-6 flex items-center justify-center
+      rounded-md
+    `;
+  });
+}

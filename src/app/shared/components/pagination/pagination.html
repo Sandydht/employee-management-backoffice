@@ -1,0 +1,166 @@
+<div class="w-full h-auto flex flex-col-reverse lg:flex-row items-center justify-start gap-4">
+  <div class="w-auto h-auto flex items-center justify-start gap-2">
+    <p class="text-[14px] leading-5 text-left">Rows per page:</p>
+    <div class="w-auto h-auto relative">
+      <button
+        type="button"
+        class="w-auto h-auto pl-3 pr-1 min-h-[35px] max-h-[35px] border rounded-lg flex items-center justify-center text-[14px] leading-5 text-center gap-2 cursor-pointer outline-none transition border-[var(--color-quaternary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)]"
+        (click)="togglePageSizeDropdown()"
+      >
+        {{ paginationMeta()?.size }}
+
+        <img
+          src="assets/images/svg/expand_more_24px_quaternary.svg"
+          alt="Expand more icon"
+          class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] transition"
+          [ngClass]="{
+            '': !isOpenPageSizeDropdown(),
+            'rotate-180': isOpenPageSizeDropdown(),
+          }"
+        />
+      </button>
+
+      @if (isOpenPageSizeDropdown()) {
+        <div
+          appClickOutside
+          (clickOutside)="closeOpenPageSizeDropdown()"
+          class="w-full h-auto bg-white border border-gray-100 rounded-lg z-30 absolute bottom-[40px] shadow-md flex flex-col items-start justify-start overflow-hidden"
+        >
+          @for (pageSizeOption of pageSizeOptions(); track pageSizeOption) {
+            <button
+              type="button"
+              class="w-full h-auto text-[14px] leading-5 text-center px-4 py-2 cursor-pointer border-b border-gray-100 last:border-b-0"
+              [ngClass]="{
+                'bg-primary text-white': paginationMeta()?.size === pageSizeOption,
+                'hover:bg-gray-100 hover:text-primary': paginationMeta()?.size !== pageSizeOption,
+              }"
+              (click)="selectPageSize(pageSizeOption)"
+            >
+              {{ pageSizeOption }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="w-auto h-auto flex items-center justify-start gap-2">
+    <div class="w-auto h-auto flex items-center justify-start gap-2">
+      <button
+        type="button"
+        [disabled]="!paginationMeta()?.hasPrevPage"
+        class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] hidden lg:flex items-center justify-center rounded-lg"
+        [ngClass]="{
+          'cursor-not-allowed': !paginationMeta()?.hasPrevPage,
+          'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasPrevPage,
+        }"
+        (click)="firstPage()"
+      >
+        <img
+          [src]="
+            !paginationMeta()?.hasPrevPage
+              ? 'assets/images/svg/first_page_24px_quaternary.svg'
+              : 'assets/images/svg/first_page_24px_primary.svg'
+          "
+          alt="First page icon"
+          class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+        />
+      </button>
+
+      <button
+        type="button"
+        [disabled]="!paginationMeta()?.hasPrevPage"
+        class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] flex items-center justify-center rounded-lg"
+        [ngClass]="{
+          'cursor-not-allowed': !paginationMeta()?.hasPrevPage,
+          'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasPrevPage,
+        }"
+        (click)="prevPage()"
+      >
+        <img
+          [src]="
+            !paginationMeta()?.hasPrevPage
+              ? 'assets/images/svg/chevron_left_24px_quaternary.svg'
+              : 'assets/images/svg/chevron_left_24px_primary.svg'
+          "
+          alt="Previous page icon"
+          class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+        />
+      </button>
+    </div>
+
+    <div class="w-auto h-auto lg:flex items-center justify-start gap-2 hidden">
+      @for (page of pages(); track page + '-' + $index) {
+        @if (page !== '...') {
+          <button
+            type="button"
+            class="w-full h-full px-3 min-h-[35px] max-h-[35px] cursor-pointer text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
+            [ngClass]="{
+              'bg-primary text-white': page === paginationMeta()?.page,
+              'hover:bg-gray-100 text-primary': page !== paginationMeta()?.page,
+            }"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        } @else {
+          <span
+            class="w-full h-full px-3 min-h-[35px] max-h-[35px] text-primary text-[14px] leading-5 font-bold flex items-center justify-center rounded-lg"
+          >
+            ...
+          </span>
+        }
+      }
+    </div>
+
+    <div class="w-auto h-auto flex lg:hidden">
+      <p class="text-center text-[14px] leading-5 line-clamp-1">
+        Page {{ paginationMeta()?.page }} / {{ paginationMeta()?.totalPages }}
+      </p>
+    </div>
+
+    <div class="w-auto h-auto flex items-center justify-start gap-2">
+      <button
+        type="button"
+        [disabled]="!paginationMeta()?.hasNextPage"
+        class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] flex items-center justify-center rounded-lg"
+        [ngClass]="{
+          'cursor-not-allowed': !paginationMeta()?.hasNextPage,
+          'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasNextPage,
+        }"
+        (click)="nextPage()"
+      >
+        <img
+          [src]="
+            !paginationMeta()?.hasNextPage
+              ? 'assets/images/svg/chevron_right_24px_quaternary.svg'
+              : 'assets/images/svg/chevron_right_24px_primary.svg'
+          "
+          alt="Next page icon"
+          class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+        />
+      </button>
+
+      <button
+        type="button"
+        [disabled]="!paginationMeta()?.hasNextPage"
+        class="w-full h-full min-w-[35px] max-w-[35px] min-h-[35px] max-h-[35px] hidden lg:flex items-center justify-center rounded-lg"
+        [ngClass]="{
+          'cursor-not-allowed': !paginationMeta()?.hasNextPage,
+          'cursor-pointer hover:bg-gray-100': paginationMeta()?.hasNextPage,
+        }"
+        (click)="lastPage()"
+      >
+        <img
+          [src]="
+            !paginationMeta()?.hasNextPage
+              ? 'assets/images/svg/last_page_24px_quaternary.svg'
+              : 'assets/images/svg/last_page_24px_primary.svg'
+          "
+          alt="Last page icon"
+          class="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px] object-contain object-center"
+        />
+      </button>
+    </div>
+  </div>
+</div>
