@@ -6,6 +6,7 @@ import {
   forwardRef,
   inject,
   input,
+  OnDestroy,
   output,
   signal,
   ViewChild,
@@ -30,32 +31,22 @@ import { DateYMDPipe } from '../../pipes/date-ymd-pipe/date-ymd-pipe';
     },
   ],
 })
-export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
+export class InputDateComponent implements AfterViewInit, ControlValueAccessor, OnDestroy {
   private readonly dateYMD = inject(DateYMDPipe);
 
-  // =========================
-  // INPUTS
-  // =========================
   id = input<string>('');
   label = input<string>('Datepicker');
   placeholder = input<string>('Choose Date');
   error = input<string>('');
-
   minDate = input<Date | null>(null);
-  maxDate = input<Date | null>(new Date());
-
-  // Disabled support
+  maxDate = input<Date | null>(null);
   disabledInput = input<boolean>(false);
+
   disabledState = signal(false);
 
   disabled = computed(() => this.disabledInput() || this.disabledState());
 
-  // Output optional
   valueChange = output<string>();
-
-  // =========================
-  // INTERNAL STATE
-  // =========================
   selectedDate = signal<Date | null>(null);
 
   openDropdown = signal(false);
@@ -122,8 +113,13 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
       opacity-70
     `;
 
+    const emptyStyle = `
+      text-[#A0A0A0]
+    `;
+
     if (this.disabled()) return `${base} ${disabledStyle}`;
     if (this.error()) return `${base} ${errorStyle}`;
+    if (!this.selectedDate()) return `${base} ${emptyStyle}`;
 
     return `${base} ${normal}`;
   });
@@ -156,20 +152,8 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
   // MONTH OFFSET RESOLVER
   // =========================
   resolveMonthYear(offset: number): { month: number; year: number } {
-    let month = this.currentMonth() + offset;
-    let year = this.currentYear();
-
-    if (month < 0) {
-      month = 11;
-      year--;
-    }
-
-    if (month > 11) {
-      month = 0;
-      year++;
-    }
-
-    return { month, year };
+    const date = new Date(this.currentYear(), this.currentMonth() + offset);
+    return { month: date.getMonth(), year: date.getFullYear() };
   }
 
   // =========================
@@ -471,6 +455,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
 
   closeDropdown(): void {
     this.openDropdown.set(false);
+    this.onTouched();
   }
 
   calculateDropdownPosition(): void {
@@ -485,9 +470,15 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
     );
   }
 
+  private resizeHandler = () => {
+    if (this.openDropdown()) this.calculateDropdownPosition();
+  };
+
   ngAfterViewInit(): void {
-    window.addEventListener('resize', () => {
-      if (this.openDropdown()) this.calculateDropdownPosition();
-    });
+    window.addEventListener('resize', this.resizeHandler);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resizeHandler);
   }
 }

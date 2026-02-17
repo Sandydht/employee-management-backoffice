@@ -42,6 +42,8 @@ export class EmployeeEditPage implements OnInit {
   private readonly store = inject(Store);
   private readonly toTitleCase = inject(ToTitleCasePipe);
 
+  maxDate = new Date();
+
   form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
     firstName: ['', [Validators.required]],

@@ -46,9 +46,11 @@ export class EmployeeAddPage {
     birthDate: ['', [Validators.required]],
     basicSalary: [0, [Validators.required, Validators.min(1)]],
     status: ['', [Validators.required]],
-    group: ['Test', [Validators.required]],
+    group: ['', [Validators.required]],
     description: ['', [Validators.required]],
   });
+
+  maxDate = new Date();
 
   loading = signal<boolean>(false);
   statusDataOptions: DropdownDataOptions[] = [

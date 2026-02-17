@@ -60,6 +60,8 @@
           label="Birth Date"
           placeholder="Choose birth date..."
           formControlName="birthDate"
+          [maxDate]="maxDate"
+          [error]="birthDateError"
         ></app-input-date>
       </div>
 
