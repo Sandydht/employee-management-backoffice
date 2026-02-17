@@ -4,6 +4,7 @@ import {
   computed,
   ElementRef,
   forwardRef,
+  inject,
   input,
   output,
   signal,
@@ -14,6 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ClickOutsideDirective } from '../../directives/click-outside/click-outside';
 import { CalendarDay } from '../../models/calendar-day.model';
+import { DateYMDPipe } from '../../pipes/date-ymd-pipe/date-ymd-pipe';
 
 @Component({
   selector: 'app-input-date',
@@ -29,6 +31,8 @@ import { CalendarDay } from '../../models/calendar-day.model';
   ],
 })
 export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
+  private readonly dateYMD = inject(DateYMDPipe);
+
   // =========================
   // INPUTS
   // =========================
@@ -129,16 +133,6 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
   // =========================
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
-
-  // =========================
-  // DATE HELPERS
-  // =========================
-  formatDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
 
   parseDate(value: string | null): Date | null {
     if (!value) return null;
@@ -340,7 +334,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
 
     this.selectedDate.set(newDate);
 
-    const formatted = this.formatDate(newDate);
+    const formatted = this.dateYMD.transform(newDate);
     this.onChange(formatted);
     this.valueChange.emit(formatted);
   }
@@ -363,7 +357,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
 
     this.selectedDate.set(newDate);
 
-    const formatted = this.formatDate(newDate);
+    const formatted = this.dateYMD.transform(newDate);
     this.onChange(formatted);
     this.valueChange.emit(formatted);
   }
@@ -405,7 +399,7 @@ export class InputDateComponent implements AfterViewInit, ControlValueAccessor {
 
     this.selectedDate.set(dateObj);
 
-    const formatted = this.formatDate(dateObj);
+    const formatted = this.dateYMD.transform(dateObj);
 
     this.valueChange.emit(formatted);
     this.onChange(formatted);

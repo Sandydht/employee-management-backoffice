@@ -4,14 +4,18 @@ import { SortOrder } from '../../app/shared/models/sort-order.model';
 import { paginateArray } from '../utils/paginateArray';
 import { decrypt } from '../utils/cryptoJs';
 import { Employee } from '../../app/features/employee/models/employee.model';
-import { AddEmployeeRequest } from '../../app/features/employee/models/add-employee-request.model';
+import { AddUpdateEmployeeRequest } from '../../app/features/employee/models/add-employee-request.model';
 import { v4 as uuid } from 'uuid';
 import { EmployeeStatus } from '../../app/features/employee/models/employee-status.model';
 import { db } from '../indexed-db/app.db';
 import { getEmployeeSortValue } from '../utils/getEmployeeSortValue';
 import { parseSortField } from '../utils/parseSortField';
 import { parseSortOrder } from '../utils/parseSortOrder';
-import { toTitleCase } from '../utils/toTitleCase';
+import { ToTitleCasePipe } from '../../app/shared/pipes/to-title-case-pipe/to-title-case-pipe';
+import { ToSnakeCasePipe } from '../../app/shared/pipes/to-snake-case-pipe/to-snake-case-pipe';
+
+const toTitleCase = new ToTitleCasePipe();
+const toSnakeCase = new ToSnakeCasePipe();
 
 export const employeeHandlers = [
   http.get('/api/employee/list', async ({ request }) => {
@@ -50,7 +54,7 @@ export const employeeHandlers = [
 
     employees = employees.map((data) => ({
       ...data,
-      group: toTitleCase(data.group),
+      group: toTitleCase.transform(data.group),
     }));
 
     employees.sort((a, b) => {
@@ -97,11 +101,17 @@ export const employeeHandlers = [
       return HttpResponse.json({ message: 'Employee not found' }, { status: 404 });
     }
 
-    return HttpResponse.json(employee, { status: 200 });
+    return HttpResponse.json(
+      {
+        ...employee,
+        group: toSnakeCase.transform(employee.group),
+      },
+      { status: 200 },
+    );
   }),
 
   http.post('/api/employee/add', async ({ request }) => {
-    const body = (await request.json()) as AddEmployeeRequest;
+    const body = (await request.json()) as AddUpdateEmployeeRequest;
 
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
@@ -169,5 +179,48 @@ export const employeeHandlers = [
 
     await db.employees.delete(String(id));
     return HttpResponse.json(employee, { status: 200 });
+  }),
+
+  http.patch('/api/employee/:id/edit', async ({ params, request }) => {
+    const body = (await request.json()) as AddUpdateEmployeeRequest;
+
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const decryptedToken = decrypt(token);
+    const user = await db.users.get(decryptedToken);
+    if (!user) {
+      return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = params;
+    if (!id) {
+      return HttpResponse.json({ message: 'Invalid id' }, { status: 400 });
+    }
+
+    const employee: Employee | undefined = await db.employees.where('id').equals(id).first();
+    if (!employee) {
+      return HttpResponse.json({ message: 'Employee not found' }, { status: 404 });
+    }
+
+    const now = new Date().toISOString();
+    const updatedBody: Partial<Employee> = {
+      ...body,
+      status: body.status as EmployeeStatus,
+      updatedAt: now,
+    };
+
+    await db.employees.update(String(id), updatedBody);
+
+    return HttpResponse.json(
+      {
+        ...employee,
+        group: toSnakeCase.transform(employee.group),
+      },
+      { status: 200 },
+    );
   }),
 ];

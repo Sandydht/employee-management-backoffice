@@ -8,7 +8,7 @@ import { InputDateComponent } from '../../../../shared/components/input-date/inp
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea';
 import { Store } from '@ngrx/store';
 import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
-import { AddEmployeeRequest } from '../../models/add-employee-request.model';
+import { AddUpdateEmployeeRequest } from '../../models/add-employee-request.model';
 import { EmployeeService } from '../../../../core/services/employee-service/employee-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Employee } from '../../models/employee.model';
@@ -199,7 +199,7 @@ export class EmployeeAddPage {
 
   submit(): void {
     this.loading.set(true);
-    const payload: AddEmployeeRequest = {
+    const payload: AddUpdateEmployeeRequest = {
       username: this.form.controls.username.value,
       firstName: this.form.controls.firstName.value,
       lastName: this.form.controls.lastName.value,

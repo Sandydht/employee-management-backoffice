@@ -5,7 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { PaginationQuery } from '../../../shared/models/pagination-query.model';
 import { Employee } from '../../../features/employee/models/employee.model';
-import { AddEmployeeRequest } from '../../../features/employee/models/add-employee-request.model';
+import { AddUpdateEmployeeRequest } from '../../../features/employee/models/add-employee-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,11 +29,15 @@ export class EmployeeService {
     return this.http.get<Employee>(`${this.apiUrl}/employee/${id}`);
   }
 
-  addEmployee(payload: AddEmployeeRequest): Observable<Employee> {
+  addEmployee(payload: AddUpdateEmployeeRequest): Observable<Employee> {
     return this.http.post<Employee>(`${this.apiUrl}/employee/add`, payload);
   }
 
   deleteEmployee(id: string | null): Observable<Employee> {
     return this.http.delete<Employee>(`${this.apiUrl}/employee/${id}/delete`);
+  }
+
+  editEmployee(id: string | null, payload: AddUpdateEmployeeRequest): Observable<Employee> {
+    return this.http.patch<Employee>(`${this.apiUrl}/employee/${id}/edit`, payload);
   }
 }

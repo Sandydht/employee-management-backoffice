@@ -9,6 +9,12 @@ import { Employee } from '../../models/employee.model';
 import { InputCurrencyComponent } from '../../../../shared/components/input-currency/input-currency';
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea';
 import { InputDateComponent } from '../../../../shared/components/input-date/input-date';
+import { InputAutocompleteComponent } from '../../../../shared/components/input-autocomplete/input-autocomplete';
+import { DropdownDataOptions } from '../../../../shared/models/dropdown-data-options.model';
+import { DateYMDPipe } from '../../../../shared/pipes/date-ymd-pipe/date-ymd-pipe';
+import { AddUpdateEmployeeRequest } from '../../models/add-employee-request.model';
+import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-employee-edit-page',
@@ -19,7 +25,9 @@ import { InputDateComponent } from '../../../../shared/components/input-date/inp
     InputCurrencyComponent,
     TextareaComponent,
     InputDateComponent,
+    InputAutocompleteComponent,
   ],
+  providers: [DateYMDPipe],
   templateUrl: './employee-edit-page.html',
   styleUrl: './employee-edit-page.css',
 })
@@ -29,6 +37,8 @@ export class EmployeeEditPage implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
+  private readonly dateYMDPipe = inject(DateYMDPipe);
+  private readonly store = inject(Store);
 
   form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
@@ -37,11 +47,67 @@ export class EmployeeEditPage implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     birthDate: ['', [Validators.required]],
     basicSalary: [0, [Validators.required, Validators.min(1)]],
-    group: ['', [Validators.required]],
+    status: ['', [Validators.required]],
+    group: ['Test', [Validators.required]],
     description: ['', [Validators.required]],
   });
 
+  statusDataOptions: DropdownDataOptions[] = [
+    {
+      key: 'ACTIVE',
+      label: 'ACTIVE',
+    },
+    {
+      key: 'INACTIVE',
+      label: 'INACTIVE',
+    },
+  ];
+
+  groupDataOptions: DropdownDataOptions[] = [
+    {
+      key: 'product_management',
+      label: 'Product Management',
+    },
+    {
+      key: 'legal',
+      label: 'Legal',
+    },
+    {
+      key: 'accounting',
+      label: 'Accounting',
+    },
+    {
+      key: 'engineering',
+      label: 'Engineering',
+    },
+    {
+      key: 'human_resources',
+      label: 'Human Resources',
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing',
+    },
+    {
+      key: 'accounting',
+      label: 'Accounting',
+    },
+    {
+      key: 'research_and_development',
+      label: 'Research and Development',
+    },
+    {
+      key: 'sales',
+      label: 'Sales',
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing',
+    },
+  ];
+
   employeeId = signal<string | null>(null);
+  loading = signal<boolean>(false);
 
   get usernameError(): string {
     const control = this.form.controls.username;
@@ -99,6 +165,15 @@ export class EmployeeEditPage implements OnInit {
     return '';
   }
 
+  get statusError(): string {
+    const control = this.form.controls.status;
+
+    if (!control?.touched) return '';
+    if (control.hasError('required')) return 'Status is required';
+
+    return '';
+  }
+
   get groupError(): string {
     const control = this.form.controls.group;
 
@@ -128,8 +203,12 @@ export class EmployeeEditPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: Employee) => {
-          this.form.patchValue(response);
-          this.form.controls.basicSalary.updateValueAndValidity();
+          if (response.id) {
+            this.form.patchValue({
+              ...response,
+              birthDate: this.dateYMDPipe.transform(new Date(response.birthDate)),
+            });
+          }
         },
       });
   }
@@ -138,21 +217,45 @@ export class EmployeeEditPage implements OnInit {
     this.router.navigate(['/employees']);
   }
 
-  formatDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
   submit(): void {
-    console.log(this.form.controls.username.value);
-    console.log(this.form.controls.firstName.value);
-    console.log(this.form.controls.lastName.value);
-    console.log(this.form.controls.email.value);
-    console.log(this.formatDate(new Date(this.form.controls.birthDate.value)));
-    console.log(this.form.controls.basicSalary.value);
-    console.log(this.form.controls.group.value);
-    console.log(this.form.controls.description.value);
+    this.loading.set(true);
+    const payload: AddUpdateEmployeeRequest = {
+      username: this.form.controls.username.value,
+      firstName: this.form.controls.firstName.value,
+      lastName: this.form.controls.lastName.value,
+      email: this.form.controls.email.value,
+      birthDate: this.form.controls.birthDate.value,
+      basicSalary: this.form.controls.basicSalary.value,
+      status: this.form.controls.status.value,
+      group: this.form.controls.group.value,
+      description: this.form.controls.description.value,
+    };
+
+    this.employeeService
+      .editEmployee(String(this.employeeId()), payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: Employee) => {
+          if (response.id) {
+            this.store.dispatch(
+              SnackbarActions.showSnackbar({
+                message: 'Employee data has been updated successfully',
+                variant: 'success',
+              }),
+            );
+            this.loading.set(false);
+            this.router.navigate(['/employees']);
+          }
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.store.dispatch(
+            SnackbarActions.showSnackbar({
+              message: err?.error?.message || 'Internal Server Error',
+              variant: 'error',
+            }),
+          );
+        },
+      });
   }
 }
