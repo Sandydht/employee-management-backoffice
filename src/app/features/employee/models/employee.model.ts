@@ -1,3 +1,5 @@
+import { EmployeeStatus } from './employee-status.model';
+
 export interface Employee {
   id: string;
   username: string;
@@ -6,7 +8,7 @@ export interface Employee {
   email: string;
   birthDate: string;
   basicSalary: number;
-  status: string;
+  status: EmployeeStatus;
   group: string;
   description: string;
   createdAt: string;

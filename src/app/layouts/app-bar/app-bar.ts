@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { SideBarService } from '../../core/services/side-bar-service/side-bar-service';
 import { AuthService } from '../../core/services/auth-service/auth-service';
+import { Store } from '@ngrx/store';
+import * as SidebarActions from '../side-bar/store/sidebar.actions';
 
 @Component({
   selector: 'app-app-bar',
@@ -10,9 +11,9 @@ import { AuthService } from '../../core/services/auth-service/auth-service';
 })
 export class AppBarComponent {
   authService = inject(AuthService);
-  sideBarService = inject(SideBarService);
+  store = inject(Store);
 
   open(): void {
-    this.sideBarService.open();
+    this.store.dispatch(SidebarActions.openSidebar());
   }
 }

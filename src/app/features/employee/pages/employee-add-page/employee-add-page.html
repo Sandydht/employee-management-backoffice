@@ -74,6 +74,28 @@
       </div>
 
       <div class="w-full h-auto">
+        <app-input-autocomplete
+          id="status"
+          label="Status"
+          placeholder="Choose status..."
+          [options]="statusDataOptions"
+          formControlName="status"
+          [error]="statusError"
+        ></app-input-autocomplete>
+      </div>
+
+      <div class="w-full h-auto">
+        <app-input-autocomplete
+          id="group"
+          label="Group"
+          placeholder="Choose group..."
+          [options]="groupDataOptions"
+          formControlName="group"
+          [error]="groupError"
+        ></app-input-autocomplete>
+      </div>
+
+      <div class="w-full h-auto">
         <app-textarea
           id="description"
           label="Description"
@@ -91,7 +113,7 @@
         </div>
 
         <div class="w-full h-auto">
-          <app-button type="submit"> Save </app-button>
+          <app-button type="submit" [disabled]="form.invalid || loading()"> Save </app-button>
         </div>
       </div>
     </form>

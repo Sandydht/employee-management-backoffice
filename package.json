@@ -41,9 +41,11 @@
     "@ngrx/store": "21.0.1",
     "@ngrx/store-devtools": "21.0.1",
     "crypto-js": "4.2.0",
+    "dexie": "4.3.0",
     "msw": "2.12.10",
     "rxjs": "7.8.0",
-    "tslib": "2.3.0"
+    "tslib": "2.3.0",
+    "uuid": "13.0.0"
   },
   "devDependencies": {
     "@angular-eslint/builder": "21.2.0",
@@ -57,6 +59,7 @@
     "@ngrx/schematics": "21.0.1",
     "@tailwindcss/postcss": "4.1.12",
     "@types/crypto-js": "4.2.2",
+    "@types/uuid": "10.0.0",
     "angular-eslint": "21.2.0",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",

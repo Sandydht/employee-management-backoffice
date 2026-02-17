@@ -37,7 +37,12 @@
         <ng-template #actionsTemplate let-employee>
           <div class="flex gap-2">
             <app-button type="button" (click)="goToEditPage(employee.id)"> Edit </app-button>
-            <app-button variant="danger"> Delete </app-button>
+            <app-button
+              variant="danger"
+              (click)="openConfirmationModalBoxDeleteEmployee(employee.id)"
+            >
+              Delete
+            </app-button>
           </div>
         </ng-template>
 

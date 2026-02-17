@@ -7,6 +7,8 @@ import { AuthService } from '../../../../core/services/auth-service/auth-service
 import { LoginRequest } from '../../models/login-request.model';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
 
 @Component({
   selector: 'app-login-page',
@@ -19,9 +21,9 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(Store);
 
   loading = signal(false);
-  serverError = signal('');
 
   form = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
@@ -55,7 +57,6 @@ export class LoginPage {
     }
 
     this.loading.set(true);
-    this.serverError.set('');
 
     const payload: LoginRequest = this.form.getRawValue();
 
@@ -69,7 +70,9 @@ export class LoginPage {
         },
         error: (err) => {
           this.loading.set(false);
-          this.serverError.set(err.error.message);
+          this.store.dispatch(
+            SnackbarActions.showSnackbar({ message: err?.error?.message, variant: 'error' }),
+          );
         },
       });
   }

@@ -15,6 +15,11 @@ import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { confirmModalReducer } from './shared/components/confirmation-modal/store/confirm-modal.reducer';
 import { ConfirmModalEffects } from './shared/components/confirmation-modal/store/confirm-modal.effects';
+import { snackbarReducer } from './shared/components/snackbar/store/snackbar.reducer';
+import { SnackbarEffects } from './shared/components/snackbar/store/snackbar.effects';
+import { sidebarReducer } from './layouts/side-bar/store/sidebar.reducer';
+import { SidebarEffects } from './layouts/side-bar/store/sidebar.effects';
+import { MockDbInitService } from '../mocks/indexed-db/mock-db-init.mock-db.service';
 
 registerLocaleData(localeId);
 
@@ -43,7 +48,15 @@ export const appConfig: ApplicationConfig = {
     },
     provideStore({
       confirmModal: confirmModalReducer,
+      snackbar: snackbarReducer,
+      sidebar: sidebarReducer,
     }),
-    provideEffects([ConfirmModalEffects]),
+    provideEffects([ConfirmModalEffects, SnackbarEffects, SidebarEffects]),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (service: MockDbInitService) => () => service.init(),
+      deps: [MockDbInitService],
+      multi: true,
+    },
   ],
 };

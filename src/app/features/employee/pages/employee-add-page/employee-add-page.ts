@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ButtonComponent } from '../../../../shared/components/button/button';
 import { Router } from '@angular/router';
 import { InputComponent } from '../../../../shared/components/input/input';
@@ -6,6 +6,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputCurrencyComponent } from '../../../../shared/components/input-currency/input-currency';
 import { InputDateComponent } from '../../../../shared/components/input-date/input-date';
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea';
+import { Store } from '@ngrx/store';
+import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
+import { AddEmployeeRequest } from '../../models/add-employee-request.model';
+import { EmployeeService } from '../../../../core/services/employee-service/employee-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Employee } from '../../models/employee.model';
+import { DropdownDataOptions } from '../../../../shared/models/dropdown-data-options.model';
+import { InputAutocompleteComponent } from '../../../../shared/components/input-autocomplete/input-autocomplete';
 
 @Component({
   selector: 'app-employee-add-page',
@@ -16,6 +24,7 @@ import { TextareaComponent } from '../../../../shared/components/textarea/textar
     InputCurrencyComponent,
     InputDateComponent,
     TextareaComponent,
+    InputAutocompleteComponent,
   ],
   templateUrl: './employee-add-page.html',
   styleUrl: './employee-add-page.css',
@@ -23,6 +32,9 @@ import { TextareaComponent } from '../../../../shared/components/textarea/textar
 export class EmployeeAddPage {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly store = inject(Store);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
@@ -31,9 +43,65 @@ export class EmployeeAddPage {
     email: ['', [Validators.required, Validators.email]],
     birthDate: ['', [Validators.required]],
     basicSalary: [0, [Validators.required, Validators.min(1)]],
-    group: ['', [Validators.required]],
+    status: ['', [Validators.required]],
+    group: ['Test', [Validators.required]],
     description: ['', [Validators.required]],
   });
+
+  loading = signal<boolean>(false);
+  statusDataOptions: DropdownDataOptions[] = [
+    {
+      key: 'ACTIVE',
+      label: 'ACTIVE',
+    },
+    {
+      key: 'INACTIVE',
+      label: 'INACTIVE',
+    },
+  ];
+
+  groupDataOptions: DropdownDataOptions[] = [
+    {
+      key: 'product_management',
+      label: 'Product Management',
+    },
+    {
+      key: 'legal',
+      label: 'Legal',
+    },
+    {
+      key: 'accounting',
+      label: 'Accounting',
+    },
+    {
+      key: 'engineering',
+      label: 'Engineering',
+    },
+    {
+      key: 'human_resources',
+      label: 'Human Resources',
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing',
+    },
+    {
+      key: 'accounting',
+      label: 'Accounting',
+    },
+    {
+      key: 'research_and_development',
+      label: 'Research and Development',
+    },
+    {
+      key: 'sales',
+      label: 'Sales',
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing',
+    },
+  ];
 
   get usernameError(): string {
     const control = this.form.controls.username;
@@ -91,6 +159,15 @@ export class EmployeeAddPage {
     return '';
   }
 
+  get statusError(): string {
+    const control = this.form.controls.status;
+
+    if (!control?.touched) return '';
+    if (control.hasError('required')) return 'Status is required';
+
+    return '';
+  }
+
   get groupError(): string {
     const control = this.form.controls.group;
 
@@ -121,13 +198,41 @@ export class EmployeeAddPage {
   }
 
   submit(): void {
-    console.log(this.form.controls.username.value);
-    console.log(this.form.controls.firstName.value);
-    console.log(this.form.controls.lastName.value);
-    console.log(this.form.controls.email.value);
-    console.log(this.formatDate(new Date(this.form.controls.birthDate.value)));
-    console.log(this.form.controls.basicSalary.value);
-    console.log(this.form.controls.group.value);
-    console.log(this.form.controls.description.value);
+    this.loading.set(true);
+    const payload: AddEmployeeRequest = {
+      username: this.form.controls.username.value,
+      firstName: this.form.controls.firstName.value,
+      lastName: this.form.controls.lastName.value,
+      email: this.form.controls.email.value,
+      birthDate: this.form.controls.birthDate.value,
+      basicSalary: this.form.controls.basicSalary.value,
+      status: this.form.controls.status.value,
+      group: this.form.controls.group.value,
+      description: this.form.controls.description.value,
+    };
+
+    this.employeeService
+      .addEmployee(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: Employee) => {
+          if (response.id) {
+            this.store.dispatch(
+              SnackbarActions.showSnackbar({
+                message: 'Employee data has been saved successfully',
+                variant: 'success',
+              }),
+            );
+            this.loading.set(false);
+            this.router.navigate(['/employees']);
+          }
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.store.dispatch(
+            SnackbarActions.showSnackbar({ message: error?.error?.message, variant: 'error' }),
+          );
+        },
+      });
   }
 }

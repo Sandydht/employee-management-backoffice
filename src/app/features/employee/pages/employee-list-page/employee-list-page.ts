@@ -25,6 +25,9 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import * as ConfirmaActions from '../../../../shared/components/confirmation-modal/store/confirm-modal.actions';
+import { Store } from '@ngrx/store';
+import * as SnackbarActions from '../../../../shared/components/snackbar/store/snackbar.actions';
 
 @Component({
   selector: 'app-employee-list-page',
@@ -45,6 +48,7 @@ export class EmployeeListPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly search$ = new Subject<string>();
+  private readonly store = inject(Store);
 
   birthDateTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('birthDateTemplate');
   salaryTemplate = viewChild<TemplateRef<{ $implicit: Employee }>>('salaryTemplate');
@@ -58,7 +62,7 @@ export class EmployeeListPage implements OnInit {
     hasNextPage: false,
     hasPrevPage: false,
   });
-  sort = signal<SortState>({ key: 'updatedAt', direction: 'desc' });
+  sort = signal<SortState>({ key: 'createdAt', direction: 'desc' });
   employees = signal<Employee[]>([]);
   search = signal<string>('');
 
@@ -182,5 +186,40 @@ export class EmployeeListPage implements OnInit {
 
   goToAddPage(): void {
     this.router.navigate(['/employees/add']);
+  }
+
+  openConfirmationModalBoxDeleteEmployee(userId: string): void {
+    this.store.dispatch(
+      ConfirmaActions.openConfirmModal({
+        title: 'Delete Employee',
+        message: 'Are you sure you want to delete this employee data?',
+        onConfirmAction: () => {
+          this.employeeService
+            .deleteEmployee(userId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (response: Employee) => {
+                if (response.id) {
+                  this.fetchEmployeeList();
+                  this.store.dispatch(
+                    SnackbarActions.showSnackbar({
+                      message: 'Employee data has been deleted successfully',
+                      variant: 'success',
+                    }),
+                  );
+                }
+              },
+              error: (err) => {
+                this.store.dispatch(
+                  SnackbarActions.showSnackbar({
+                    message: err?.error?.message || 'Internal Server Error',
+                    variant: 'success',
+                  }),
+                );
+              },
+            });
+        },
+      }),
+    );
   }
 }

@@ -1,18 +1,15 @@
 import { http, HttpResponse } from 'msw';
-import UsersDummyData from '../data/users.json';
 import { LoginRequest } from '../../app/features/auth/models/login-request.model';
 import { LoginResponse } from '../../app/features/auth/models/login-response.model';
 import { decrypt, encrypt } from '../utils/cryptoJs';
+import { db } from '../indexed-db/app.db';
 
 export const authHandlers = [
   http.post('/api/auth/login', async ({ request }) => {
     const body = (await request.json()) as LoginRequest;
 
-    const user = UsersDummyData.find(
-      (user) => user.username === body.username && user.password === body.password,
-    );
-
-    if (!user) {
+    const user = await db.users.where('username').equals(body.username).first();
+    if (!user || user.password !== body.password) {
       return HttpResponse.json({ message: 'Invalid username or password' }, { status: 401 });
     }
 
@@ -41,7 +38,7 @@ export const authHandlers = [
 
     const token = authHeader.replace('Bearer ', '');
     const decryptedToken = decrypt(token);
-    const user = UsersDummyData.find((user) => user.id === decryptedToken);
+    const user = await db.users.get(decryptedToken);
     if (!user) {
       return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
