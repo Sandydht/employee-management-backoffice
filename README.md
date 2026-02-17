@@ -1,59 +1,160 @@
-# EmployeeManagementBackoffice
+# Employee Management Backoffice
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Employee Management Backoffice is a web application designed to manage employee records efficiently.  
+It provides features such as authentication, employee listing, adding new employees, and viewing detailed employee information.
 
-## Development server
+The project is built with **Angular** and follows a clean, responsive UI approach.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
+## Project Overview
+
+This application helps users manage employee data through a simple backoffice interface, including:
+
+- Login authentication.
+- Dashboard.
+- Employee list management.
+- Employee creation form.
+- Employee detail view with formatted information.
+
+--- 
+
+## Tech Stack
+
+- **Angular**
+- **Typescript**
+- **TailwindCSS**
+- **NgRx** (State Management)
+- **MSW (Mock Service Worker)** for mock API simulation
+- **Dexie IndexedDB** for local dummy database storage
+
+---
+
+## Employee Data Structure
+
+Employe attributes used in the application:
+
+```json
+{
+  "employee": {
+    "username": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "birthDate": "datetime",
+    "basicSalary": "double",
+    "status": "string",
+    "group": "string",
+    "description": "string"
+  }
+}
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+--- 
 
-## Code scaffolding
+## Applicatyion Page
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The application consists of the following main pages:
 
-```bash
-ng generate component component-name
+### 1. Login Page
+
+Features:
+
+- Username and password input fields.
+- Login button with validation.
+- Dummy authentication for demonstration purposes.
+
+### 2. Employee List Page
+
+Displays employee records with management tools.
+
+Features:
+
+- Shows a list of employees (dummy dataset).
+- Pagination support.
+- Sorting functionality.
+- Search filtering with multiple parameters (AND rule).
+- Page size selector.
+- Action buttons:
+  - Edit (dummy).
+  - Delete (dummy).
+- Action Notifications:
+  - Edit -> Yellow alert.
+  - Delete -> Red alert.
+
+### 3. Add Employee Page
+
+Form page for creating a new employee record.
+
+Features:
+
+- All fields are required.
+- Input validations:
+  - BirthDate uses a datepicker (cannot exceed today).
+  - Email must be valid.
+  - Basic salary must be numeric.
+- Group selection dropdown with searchable options
+  - Contains at least 10 predefined groups.
+
+Buttons:
+  - **Save** -> stores employee data.
+  - **Cancel** -> navigates back to the employee list.
+
+### 4. Employee Detail Page
+
+Displays complete employee information.
+
+Features:
+
+- shows all employee attributes.
+- Salary formatting example:
+
+```
+Rp 10.000.000
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- **OK Button** navigates back to the employee list page.
+- **Search/filter** state remains preserved when returning.
+
+---
+
+## Getting Started
+
+Follow these steps to run the project locally.
+
+### 1. Clone the Repository
 
 ```bash
-ng generate --help
+git clone https://github.com/Sandydht/employee-management-backoffice.git
+cd employee-management-backoffice
 ```
 
-## Building
-
-To build the project run:
+### 2. Install Dependencies
 
 ```bash
-ng build
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 3. Run Development Server
 
 ```bash
-ng test
+ng serve 
 ```
 
-## Running end-to-end tests
+The application will be available at: [http://localhost:4200](http://localhost:4200)
 
-For end-to-end (e2e) testing, run:
+--- 
 
-```bash
-ng e2e
+## Demo Login Credentials
+
+```
+Username: user1
+Password: password123
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Notes 
+- The project uses mock data and simulated API requests.
+- No backend service is required.
+- Designed with clean UI and responsive layout principles.
